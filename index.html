@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌮 TacoTrack — Inventory System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #D85A30;
+  --brand-soft: #FAECE7;
+  --brand-dark: #993C1D;
+  --accent: #1D9E75;
+  --accent-soft: #E1F5EE;
+  --gold: #EF9F27;
+  --gold-soft: #FAEEDA;
+  --ink: #2C2C2A;
+  --ink-2: #5F5E5A;
+  --ink-3: #888780;
+  --surface: #FAFAF8;
+  --card: #FFFFFF;
+  --border: rgba(44,44,42,0.1);
+  --border-md: rgba(44,44,42,0.18);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+h1,h2,h3,h4,h5,.heading { font-family: 'Syne', sans-serif; }
+
+/* SIDEBAR */
+#sidebar {
+  width: 230px; min-height: 100vh; background: var(--ink);
+  position: fixed; left: 0; top: 0; z-index: 100;
+  display: flex; flex-direction: column;
+}
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+  color: #fff; letter-spacing: -0.5px;
+}
+.sidebar-logo span { color: var(--brand); }
+.sidebar-day {
+  margin: 0 12px 16px;
+  background: rgba(255,255,255,0.06); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 12px; color: rgba(255,255,255,0.5);
+}
+.sidebar-day strong { display: block; color: rgba(255,255,255,0.85); font-size: 13px; }
+.nav-section {
+  padding: 0 12px; font-size: 10px; letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3); text-transform: uppercase;
+  margin: 10px 0 4px;
+}
+.sidebar nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; margin: 1px 12px;
+  border-radius: var(--radius-sm); text-decoration: none;
+  color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500;
+  transition: all 0.15s;
+}
+.sidebar nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.sidebar nav a.active { background: var(--brand); color: #fff; }
+.sidebar nav a .icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-bottom { margin-top: auto; padding: 12px; }
+.btn-export-day {
+  width: 100%; background: var(--brand); border: none; border-radius: var(--radius-sm);
+  color: #fff; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 10px; cursor: pointer; transition: background 0.15s;
+}
+.btn-export-day:hover { background: var(--brand-dark); }
+
+/* MAIN */
+#main { margin-left: 230px; padding: 28px 32px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* CARDS */
+.card-box {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 20px 22px;
+}
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 24px; }
+.metric-card {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 16px 18px;
+}
+.metric-card .label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.metric-card .value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+.metric-card .sub { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.metric-card.orange { border-color: var(--brand); }
+.metric-card.orange .value { color: var(--brand); }
+.metric-card.green { border-color: var(--accent); }
+.metric-card.green .value { color: var(--accent); }
+.metric-card.gold { border-color: var(--gold); }
+.metric-card.gold .value { color: #BA7517; }
+
+/* TABLES */
+.tt-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tt-table th {
+  background: var(--surface); font-family: 'Syne', sans-serif;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--ink-2); padding: 10px 14px; text-align: left;
+  border-bottom: 1px solid var(--border-md);
+}
+.tt-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.tt-table tr:last-child td { border-bottom: none; }
+.tt-table tr:hover td { background: rgba(0,0,0,0.02); }
+.badge-pill {
+  display: inline-block; padding: 2px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 500;
+}
+.badge-raw { background: var(--gold-soft); color: #85500B; }
+.badge-cooked { background: var(--accent-soft); color: #085041; }
+.badge-sold { background: #EAF3DE; color: #27500A; }
+
+/* FORMS */
+.form-label { font-size: 13px; font-weight: 500; color: var(--ink-2); margin-bottom: 5px; }
+.form-control, .form-select {
+  border: 1px solid var(--border-md); border-radius: var(--radius-sm);
+  font-size: 14px; padding: 8px 12px; color: var(--ink);
+  background: var(--card); transition: border 0.15s;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand); box-shadow: 0 0 0 3px rgba(216,90,48,0.1); outline: none;
+}
+.btn-primary-tt {
+  background: var(--brand); color: #fff; border: none;
+  border-radius: var(--radius-sm); padding: 9px 20px;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-primary-tt:hover { background: var(--brand-dark); }
+.btn-secondary-tt {
+  background: transparent; color: var(--ink-2);
+  border: 1px solid var(--border-md);
+  border-radius: var(--radius-sm); padding: 9px 18px;
+  font-size: 14px; cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary-tt:hover { background: var(--surface); border-color: var(--ink-3); }
+.btn-danger-tt {
+  background: #fcebeb; color: #A32D2D; border: 1px solid #f09595;
+  border-radius: var(--radius-sm); padding: 5px 12px;
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
+}
+.btn-danger-tt:hover { background: #f7c1c1; }
+.btn-success-tt {
+  background: var(--accent-soft); color: #085041; border: 1px solid #5DCAA5;
+  border-radius: var(--radius-sm); padding: 5px 12px;
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
+}
+.btn-success-tt:hover { background: #9FE1CB; }
+
+/* PAGE HEADERS */
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+.page-header p { color: var(--ink-2); font-size: 14px; margin-top: 4px; }
+
+/* SECTION DIVIDER */
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--ink-2); margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* TOAST */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+.toast-msg {
+  background: var(--ink); color: #fff; padding: 12px 18px;
+  border-radius: var(--radius-sm); font-size: 13px; margin-top: 8px;
+  animation: slideup 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.toast-msg.success { background: #085041; }
+.toast-msg.error { background: #791F1F; }
+@keyframes slideup { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* CHART */
+#chart-wrap { height: 280px; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--card); border-radius: var(--radius);
+  padding: 28px; width: 480px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.modal-close { float: right; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-3); }
+
+/* SELECT2 override */
+.select2-container--bootstrap-5 .select2-selection { border-color: var(--border-md) !important; border-radius: var(--radius-sm) !important; }
+
+/* IMPORT AREA */
+.import-drop { border: 2px dashed var(--border-md); border-radius: var(--radius); padding: 40px; text-align: center; color: var(--ink-2); cursor: pointer; transition: all 0.15s; }
+.import-drop:hover { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+
+/* TOP VENDOR BAR */
+.vendor-bar-wrap { margin-bottom: 10px; }
+.vendor-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+.vendor-bar-track { height: 8px; background: var(--surface); border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
+.vendor-bar-fill { height: 100%; background: var(--brand); border-radius: 99px; transition: width 0.4s ease; }
+
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-logo">🌮 <span>Taco</span>Track</div>
+  <div class="sidebar-day">
+    <strong id="sidebar-date">Loading...</strong>
+    Day Inventory System
+  </div>
+  <div class="nav-section">Overview</div>
+  <nav>
+    <a href="#" class="active" onclick="navigate('dashboard',this)">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <div class="nav-section">Production</div>
+    <a href="#" onclick="navigate('production',this)">
+      <span class="icon">🏭</span> Production Entry
+    </a>
+    <div class="nav-section">Vendors</div>
+    <a href="#" onclick="navigate('vendors',this)">
+      <span class="icon">🏪</span> Vendor List
+    </a>
+    <a href="#" onclick="navigate('distribution',this)">
+      <span class="icon">📦</span> Distribute Tacos
+    </a>
+    <a href="#" onclick="navigate('declare',this)">
+      <span class="icon">✅</span> Declare Sold
+    </a>
+    <div class="nav-section">Records</div>
+    <a href="#" onclick="navigate('adjustments',this)">
+      <span class="icon">📋</span> Adjustments
+    </a>
+    <a href="#" onclick="navigate('inventory',this)">
+      <span class="icon">📑</span> Inventory Ledger
+    </a>
+    <div class="nav-section">Data</div>
+    <a href="#" onclick="navigate('import',this)">
+      <span class="icon">⬆️</span> Import Previous Day
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-export-day" onclick="exportDay()">⬇ Export End of Day</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <h2>Daily Dashboard</h2>
+      <p id="dash-date-label">Today's overview</p>
+    </div>
+    <div class="metric-grid" id="metric-grid">
+      <div class="metric-card orange">
+        <div class="label">Produced Today</div>
+        <div class="value" id="m-produced">0</div>
+        <div class="sub">Total batch</div>
+      </div>
+      <div class="metric-card green">
+        <div class="label">Sold Out</div>
+        <div class="value" id="m-sold">0</div>
+        <div class="sub">Declared sold</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Remaining — Cooked</div>
+        <div class="value" id="m-cooked">0</div>
+        <div class="sub" style="color:var(--accent)">Ready tacos</div>
+      </div>
+      <div class="metric-card gold">
+        <div class="label">Remaining — Raw</div>
+        <div class="value" id="m-raw">0</div>
+        <div class="sub" style="color:#BA7517">Uncooked distributed</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Active Vendors</div>
+        <div class="value" id="m-vendors">0</div>
+        <div class="sub">Registered vendors</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Credits Pending</div>
+        <div class="value" id="m-credit">0</div>
+        <div class="sub">Will pay later</div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="card-box">
+          <div class="section-title">Distribution vs Sold by Vendor</div>
+          <div id="chart-wrap"><canvas id="vendorChart"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-box h-100">
+          <div class="section-title">Top Vendors by Sold</div>
+          <div id="top-vendors-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTION -->
+  <div class="page" id="page-production">
+    <div class="page-header">
+      <h2>Production Entry</h2>
+      <p>Enter how many tacos were produced today</p>
+    </div>
+    <div class="card-box" style="max-width:480px">
+      <div class="section-title">Add Production Batch</div>
+      <div class="mb-3">
+        <label class="form-label">Production Date</label>
+        <input type="date" class="form-control" id="prod-date">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Total Tacos Produced</label>
+        <input type="number" class="form-control" id="prod-qty" placeholder="e.g. 500" min="1">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Notes (optional)</label>
+        <input type="text" class="form-control" id="prod-notes" placeholder="Batch note...">
+      </div>
+      <button class="btn-primary-tt" onclick="addProduction()">+ Add Production</button>
+    </div>
+    <div class="card-box mt-3">
+      <div class="section-title">Production History</div>
+      <table class="tt-table">
+        <thead><tr><th>Date</th><th>Qty Produced</th><th>Notes</th><th>Action</th></tr></thead>
+        <tbody id="prod-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VENDORS -->
+  <div class="page" id="page-vendors">
+    <div class="page-header">
+      <h2>Vendor Management</h2>
+      <p>Register and manage your taco distribution vendors</p>
+    </div>
+    <div class="card-box" style="max-width:480px; margin-bottom:20px">
+      <div class="section-title">Add New Vendor</div>
+      <div class="mb-3">
+        <label class="form-label">Vendor Name</label>
+        <input type="text" class="form-control" id="vendor-name" placeholder="e.g. Mang Juan's Corner">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Location / Area</label>
+        <input type="text" class="form-control" id="vendor-loc" placeholder="e.g. Zone 5, Bankerohan">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Contact (optional)</label>
+        <input type="text" class="form-control" id="vendor-contact" placeholder="Phone or name">
+      </div>
+      <button class="btn-primary-tt" onclick="addVendor()">+ Add Vendor</button>
+    </div>
+    <div class="card-box">
+      <div class="section-title">Vendor List</div>
+      <table class="tt-table">
+        <thead><tr><th>#</th><th>Vendor Name</th><th>Location</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="vendor-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTION -->
+  <div class="page" id="page-distribution">
+    <div class="page-header">
+      <h2>Distribute Tacos</h2>
+      <p>Assign raw (uncooked) tacos to vendors</p>
+    </div>
+    <div class="card-box" style="max-width:500px; margin-bottom:20px">
+      <div class="section-title">New Distribution</div>
+      <div class="mb-3">
+        <label class="form-label">Select Vendor</label>
+        <select class="form-select" id="dist-vendor" style="width:100%"></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Qty to Distribute (Raw Tacos)</label>
+        <input type="number" class="form-control" id="dist-qty" placeholder="e.g. 50" min="1">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" id="dist-date">
+      </div>
+      <div class="mb-1" style="font-size:13px; color:var(--ink-2)">
+        Available stock: <strong id="dist-available" style="color:var(--brand)">0</strong> tacos
+      </div>
+      <button class="btn-primary-tt mt-2" onclick="addDistribution()">Distribute</button>
+    </div>
+    <div class="card-box">
+      <div class="section-title">Distribution Log</div>
+      <table class="tt-table">
+        <thead><tr><th>Date</th><th>Vendor</th><th>Distributed</th><th>Remaining Raw</th><th>Sold</th><th>Status</th></tr></thead>
+        <tbody id="dist-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DECLARE SOLD -->
+  <div class="page" id="page-declare">
+    <div class="page-header">
+      <h2>Declare Sold</h2>
+      <p>End-of-day: record how many cooked tacos were actually sold per vendor</p>
+    </div>
+    <div class="card-box" style="max-width:500px; margin-bottom:20px">
+      <div class="section-title">Declare Sold Tacos</div>
+      <div class="mb-3">
+        <label class="form-label">Vendor</label>
+        <select class="form-select" id="declare-vendor" style="width:100%"></select>
+      </div>
+      <div class="mb-1" style="font-size:13px;color:var(--ink-2)">
+        Distributed (raw): <strong id="declare-raw">0</strong> &nbsp;|&nbsp; Already sold: <strong id="declare-already">0</strong>
+      </div>
+      <div class="mb-3 mt-2">
+        <label class="form-label">How many tacos were sold (cooked)?</label>
+        <input type="number" class="form-control" id="declare-sold" placeholder="e.g. 38" min="0">
+      </div>
+      <button class="btn-primary-tt" onclick="declareSold()">✅ Declare Sold</button>
+    </div>
+    <div class="card-box">
+      <div class="section-title">Vendor Status — Raw vs Cooked</div>
+      <table class="tt-table">
+        <thead><tr><th>Vendor</th><th>Distributed</th><th>Sold (Cooked)</th><th>Remaining Raw</th><th>Remaining Cooked</th></tr></thead>
+        <tbody id="declare-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADJUSTMENTS -->
+  <div class="page" id="page-adjustments">
+    <div class="page-header">
+      <h2>Adjustments & Special Records</h2>
+      <p>Internal use, missing, credits and other deductions</p>
+    </div>
+    <div class="card-box" style="max-width:520px; margin-bottom:20px">
+      <div class="section-title">New Adjustment</div>
+      <div class="mb-3">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="adj-type">
+          <option value="internal">Internal Use (free — test, snack, damage)</option>
+          <option value="missing">Missing</option>
+          <option value="credit">Credit (distributed but pay later)</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Related Vendor (optional)</label>
+        <select class="form-select" id="adj-vendor" style="width:100%"></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input type="number" class="form-control" id="adj-qty" placeholder="e.g. 5" min="1">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Reason / Notes</label>
+        <input type="text" class="form-control" id="adj-notes" placeholder="Describe this adjustment...">
+      </div>
+      <button class="btn-primary-tt" onclick="addAdjustment()">+ Add Adjustment</button>
+    </div>
+    <div class="card-box">
+      <div class="section-title">Adjustment Log</div>
+      <table class="tt-table">
+        <thead><tr><th>Date/Time</th><th>Type</th><th>Vendor</th><th>Qty</th><th>Notes</th><th>Del</th></tr></thead>
+        <tbody id="adj-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- INVENTORY LEDGER -->
+  <div class="page" id="page-inventory">
+    <div class="page-header">
+      <h2>Inventory Ledger</h2>
+      <p>Full breakdown of all taco movements today</p>
+    </div>
+    <div class="card-box mb-3">
+      <div class="row g-3">
+        <div class="col-sm-3">
+          <div class="label" style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Produced</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700" id="led-produced">0</div>
+        </div>
+        <div class="col-sm-3">
+          <div class="label" style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Distributed</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--brand)" id="led-dist">0</div>
+        </div>
+        <div class="col-sm-3">
+          <div class="label" style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Sold</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="led-sold">0</div>
+        </div>
+        <div class="col-sm-3">
+          <div class="label" style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Adjustments</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#BA7517" id="led-adj">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-box">
+      <div class="section-title">Full Ledger</div>
+      <table class="tt-table">
+        <thead><tr><th>Time</th><th>Entry Type</th><th>Vendor</th><th>Qty</th><th>Notes</th></tr></thead>
+        <tbody id="ledger-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="page" id="page-import">
+    <div class="page-header">
+      <h2>Import Previous Day</h2>
+      <p>Load yesterday's exported JSON to carry over vendors, remaining stock, and credits</p>
+    </div>
+    <div class="card-box" style="max-width:520px">
+      <div class="import-drop" id="import-drop" onclick="document.getElementById('import-file').click()">
+        <div style="font-size:32px;margin-bottom:8px">📂</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:15px">Click to select export file</div>
+        <div style="font-size:13px;color:var(--ink-3);margin-top:4px">TacoTrack JSON export (.json)</div>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importDay(event)">
+      </div>
+      <div id="import-preview" class="mt-3"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+let state = {
+  date: new Date().toISOString().split('T')[0],
+  production: [],    // [{id, date, qty, notes}]
+  vendors: [],       // [{id, name, location, contact, active}]
+  distributions: [], // [{id, vendorId, qty, date, soldQty}]
+  adjustments: [],   // [{id, type, vendorId, qty, notes, timestamp}]
+  ledger: [],        // [{time, type, vendorId, qty, notes}]
+  carryoverRaw: 0,   // raw stock carried from prev day
+};
+
+let chart = null;
+
+// ============================================================
+//  INIT
+// ============================================================
+window.onload = () => {
+  const today = new Date();
+  document.getElementById('sidebar-date').textContent = today.toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('dash-date-label').textContent = 'Overview for ' + today.toLocaleDateString('en-PH', { month:'long', day:'numeric', year:'numeric' });
+  // Set default dates
+  ['prod-date','dist-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = state.date; });
+  initSelects();
+  refreshAll();
+};
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  el.classList.add('active');
+  refreshAll();
+  return false;
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function uid() { return Math.random().toString(36).slice(2,9); }
+function toast(msg, type='') {
+  const c = document.getElementById('toast-container');
+  const d = document.createElement('div');
+  d.className = 'toast-msg ' + type;
+  d.textContent = msg;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 3000);
+}
+function nowStr() { return new Date().toLocaleTimeString('en-PH', {hour:'2-digit',minute:'2-digit'}); }
+
+function totalProduced() { return state.production.reduce((s,p) => s + p.qty, 0) + state.carryoverRaw; }
+function totalDistributed() { return state.distributions.reduce((s,d) => s + d.qty, 0); }
+function totalSold() { return state.distributions.reduce((s,d) => s + (d.soldQty||0), 0); }
+function totalAdjusted() { return state.adjustments.reduce((s,a) => s + a.qty, 0); }
+function totalCredits() { return state.adjustments.filter(a=>a.type==='credit').reduce((s,a)=>s+a.qty,0); }
+
+function remainingInWarehouse() {
+  return totalProduced() - totalDistributed() - state.adjustments.filter(a=>a.type!=='credit').reduce((s,a)=>s+a.qty,0);
+}
+// Per vendor: raw = distributed - sold; cooked means sold (already cooked and sold)
+function vendorRaw(vendorId) {
+  const dist = state.distributions.filter(d=>d.vendorId===vendorId).reduce((s,d)=>s+d.qty,0);
+  const sold = state.distributions.filter(d=>d.vendorId===vendorId).reduce((s,d)=>s+(d.soldQty||0),0);
+  return Math.max(0, dist - sold);
+}
+function vendorSold(vendorId) {
+  return state.distributions.filter(d=>d.vendorId===vendorId).reduce((s,d)=>s+(d.soldQty||0),0);
+}
+function vendorDist(vendorId) {
+  return state.distributions.filter(d=>d.vendorId===vendorId).reduce((s,d)=>s+d.qty,0);
+}
+
+// ============================================================
+//  SELECT2 INIT
+// ============================================================
+function initSelects() {
+  ['dist-vendor','declare-vendor','adj-vendor'].forEach(id => {
+    const el = $('#' + id);
+    if(el.length) el.select2({ theme:'bootstrap-5', width:'100%', allowClear: id==='adj-vendor', placeholder: id==='adj-vendor' ? '-- None --' : 'Select vendor' });
+  });
+}
+function refreshSelects() {
+  ['dist-vendor','declare-vendor','adj-vendor'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const val = el.value;
+    el.innerHTML = id==='adj-vendor' ? '<option value="">-- None --</option>' : '';
+    state.vendors.filter(v=>v.active).forEach(v => {
+      el.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+    if(val) el.value = val;
+    try { $('#'+id).trigger('change.select2'); } catch(e){}
+  });
+}
+
+// ============================================================
+//  PRODUCTION
+// ============================================================
+function addProduction() {
+  const date = document.getElementById('prod-date').value;
+  const qty = parseInt(document.getElementById('prod-qty').value);
+  const notes = document.getElementById('prod-notes').value.trim();
+  if(!date || !qty || qty < 1) { toast('Please enter a valid date and quantity.','error'); return; }
+  const rec = { id: uid(), date, qty, notes };
+  state.production.push(rec);
+  addLedger('Production', '', qty, notes || 'Batch produced');
+  document.getElementById('prod-qty').value = '';
+  document.getElementById('prod-notes').value = '';
+  toast(`✅ Added ${qty} tacos to production.`,'success');
+  refreshAll();
+}
+function deleteProduction(id) {
+  state.production = state.production.filter(p=>p.id!==id);
+  refreshAll();
+}
+function renderProdTable() {
+  const tb = document.getElementById('prod-table');
+  if(!tb) return;
+  if(!state.production.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--ink-3);padding:20px">No production entries yet</td></tr>'; return; }
+  tb.innerHTML = state.production.map(p => `
+    <tr>
+      <td>${p.date}</td>
+      <td><strong>${p.qty.toLocaleString()}</strong></td>
+      <td style="color:var(--ink-2)">${p.notes||'—'}</td>
+      <td><button class="btn-danger-tt" onclick="deleteProduction('${p.id}')">Delete</button></td>
+    </tr>`).join('');
+}
+
+// ============================================================
+//  VENDORS
+// ============================================================
+function addVendor() {
+  const name = document.getElementById('vendor-name').value.trim();
+  const loc = document.getElementById('vendor-loc').value.trim();
+  const contact = document.getElementById('vendor-contact').value.trim();
+  if(!name) { toast('Vendor name is required.','error'); return; }
+  if(state.vendors.find(v=>v.name.toLowerCase()===name.toLowerCase())) { toast('Vendor already exists.','error'); return; }
+  state.vendors.push({ id: uid(), name, location: loc, contact, active: true });
+  document.getElementById('vendor-name').value = '';
+  document.getElementById('vendor-loc').value = '';
+  document.getElementById('vendor-contact').value = '';
+  toast(`🏪 Vendor "${name}" added.`,'success');
+  refreshAll();
+}
+function toggleVendor(id) {
+  const v = state.vendors.find(v=>v.id===id);
+  if(v) v.active = !v.active;
+  refreshAll();
+}
+function deleteVendor(id) {
+  state.vendors = state.vendors.filter(v=>v.id!==id);
+  refreshAll();
+}
+function renderVendorTable() {
+  const tb = document.getElementById('vendor-table');
+  if(!tb) return;
+  if(!state.vendors.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:20px">No vendors registered yet</td></tr>'; return; }
+  tb.innerHTML = state.vendors.map((v,i) => `
+    <tr>
+      <td style="color:var(--ink-3)">${i+1}</td>
+      <td><strong>${v.name}</strong></td>
+      <td style="color:var(--ink-2)">${v.location||'—'}</td>
+      <td style="color:var(--ink-2)">${v.contact||'—'}</td>
+      <td><span class="badge-pill ${v.active?'badge-sold':'badge-raw'}">${v.active?'Active':'Inactive'}</span></td>
+      <td>
+        <button class="btn-secondary-tt" style="padding:4px 10px;font-size:12px" onclick="toggleVendor('${v.id}')">${v.active?'Deactivate':'Activate'}</button>
+        <button class="btn-danger-tt ms-1" onclick="deleteVendor('${v.id}')">Del</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ============================================================
+//  DISTRIBUTION
+// ============================================================
+function addDistribution() {
+  const vendorId = document.getElementById('dist-vendor').value;
+  const qty = parseInt(document.getElementById('dist-qty').value);
+  const date = document.getElementById('dist-date').value;
+  const avail = remainingInWarehouse();
+  if(!vendorId) { toast('Select a vendor first.','error'); return; }
+  if(!qty || qty < 1) { toast('Enter a valid quantity.','error'); return; }
+  if(qty > avail) { toast(`Not enough stock. Available: ${avail}`, 'error'); return; }
+  const vendor = state.vendors.find(v=>v.id===vendorId);
+  state.distributions.push({ id: uid(), vendorId, qty, date, soldQty: 0 });
+  addLedger('Distribution', vendorId, qty, `Distributed to ${vendor.name}`);
+  document.getElementById('dist-qty').value = '';
+  toast(`📦 Distributed ${qty} tacos to ${vendor.name}.`,'success');
+  refreshAll();
+}
+function renderDistTable() {
+  const tb = document.getElementById('dist-table');
+  if(!tb) return;
+  if(!state.distributions.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:20px">No distributions yet</td></tr>'; return; }
+  tb.innerHTML = state.distributions.map(d => {
+    const v = state.vendors.find(v=>v.id===d.vendorId);
+    const remRaw = Math.max(0, d.qty - (d.soldQty||0));
+    return `<tr>
+      <td>${d.date}</td>
+      <td>${v?v.name:'Unknown'}</td>
+      <td><strong>${d.qty}</strong></td>
+      <td>${remRaw}</td>
+      <td>${d.soldQty||0}</td>
+      <td><span class="badge-pill ${remRaw>0?'badge-raw':'badge-sold'}">${remRaw>0?'Has Raw':'All Sold'}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('dist-available').textContent = remainingInWarehouse();
+}
+
+// ============================================================
+//  DECLARE SOLD
+// ============================================================
+function declareSold() {
+  const vendorId = document.getElementById('declare-vendor').value;
+  const sold = parseInt(document.getElementById('declare-sold').value);
+  if(!vendorId) { toast('Select a vendor.','error'); return; }
+  if(!sold || sold < 0) { toast('Enter valid sold quantity.','error'); return; }
+  const totalDist = vendorDist(vendorId);
+  const alreadySold = vendorSold(vendorId);
+  const maxCanSell = totalDist - alreadySold;
+  if(sold > maxCanSell) { toast(`Cannot declare more than distributed remaining (${maxCanSell}).`,'error'); return; }
+  // Apply sold to oldest undeclared distributions
+  let toApply = sold;
+  for(let d of state.distributions.filter(d=>d.vendorId===vendorId)) {
+    const canTake = d.qty - (d.soldQty||0);
+    if(canTake <= 0) continue;
+    const take = Math.min(canTake, toApply);
+    d.soldQty = (d.soldQty||0) + take;
+    toApply -= take;
+    if(toApply <= 0) break;
+  }
+  const vendor = state.vendors.find(v=>v.id===vendorId);
+  addLedger('Sold Declared', vendorId, sold, `${vendor.name} declared ${sold} sold`);
+  document.getElementById('declare-sold').value = '';
+  toast(`✅ ${sold} tacos declared sold for ${vendor.name}.`,'success');
+  refreshAll();
+}
+function renderDeclareTable() {
+  const tb = document.getElementById('declare-table');
+  if(!tb) return;
+  const activeVendors = state.vendors.filter(v=>v.active && vendorDist(v.id) > 0);
+  if(!activeVendors.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-3);padding:20px">No distributions to declare yet</td></tr>'; return; }
+  tb.innerHTML = activeVendors.map(v => {
+    const dist = vendorDist(v.id);
+    const sold = vendorSold(v.id);
+    const raw = Math.max(0, dist - sold);
+    return `<tr>
+      <td><strong>${v.name}</strong></td>
+      <td>${dist}</td>
+      <td><span class="badge-pill badge-sold">${sold}</span></td>
+      <td><span class="badge-pill badge-raw">${raw}</span></td>
+      <td><span class="badge-pill badge-cooked">${sold}</span></td>
+    </tr>`;
+  }).join('');
+  // Update info for selected vendor
+  const sel = document.getElementById('declare-vendor').value;
+  if(sel) {
+    document.getElementById('declare-raw').textContent = vendorDist(sel);
+    document.getElementById('declare-already').textContent = vendorSold(sel);
+  }
+}
+
+// ============================================================
+//  ADJUSTMENTS
+// ============================================================
+function addAdjustment() {
+  const type = document.getElementById('adj-type').value;
+  const vendorId = document.getElementById('adj-vendor').value;
+  const qty = parseInt(document.getElementById('adj-qty').value);
+  const notes = document.getElementById('adj-notes').value.trim();
+  if(!qty || qty < 1) { toast('Enter a valid quantity.','error'); return; }
+  if(!notes) { toast('Please add a reason/note.','error'); return; }
+  state.adjustments.push({ id: uid(), type, vendorId, qty, notes, timestamp: nowStr() });
+  const typeLabel = { internal: 'Internal Use', missing: 'Missing', credit: 'Credit' };
+  addLedger('Adjustment: ' + typeLabel[type], vendorId, qty, notes);
+  document.getElementById('adj-qty').value = '';
+  document.getElementById('adj-notes').value = '';
+  toast(`📋 Adjustment recorded.`,'success');
+  refreshAll();
+}
+function deleteAdjustment(id) {
+  state.adjustments = state.adjustments.filter(a=>a.id!==id);
+  refreshAll();
+}
+function renderAdjTable() {
+  const tb = document.getElementById('adj-table');
+  if(!tb) return;
+  if(!state.adjustments.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:20px">No adjustments recorded</td></tr>'; return; }
+  const typeColors = { internal: 'badge-raw', missing: 'badge-pill" style="background:#fcebeb;color:#791F1F', credit: 'badge-cooked' };
+  const typeLabels = { internal: 'Internal Use', missing: 'Missing', credit: 'Credit' };
+  tb.innerHTML = state.adjustments.map(a => {
+    const v = state.vendors.find(v=>v.id===a.vendorId);
+    return `<tr>
+      <td style="font-size:12px;color:var(--ink-3)">${a.timestamp||'—'}</td>
+      <td><span class="badge-pill ${typeColors[a.type]||'badge-raw'}">${typeLabels[a.type]||a.type}</span></td>
+      <td>${v?v.name:'—'}</td>
+      <td><strong>${a.qty}</strong></td>
+      <td style="color:var(--ink-2);font-size:13px">${a.notes}</td>
+      <td><button class="btn-danger-tt" onclick="deleteAdjustment('${a.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+//  LEDGER
+// ============================================================
+function addLedger(type, vendorId, qty, notes) {
+  state.ledger.push({ time: nowStr(), type, vendorId, qty, notes });
+}
+function renderLedger() {
+  const tb = document.getElementById('ledger-table');
+  if(!tb) return;
+  document.getElementById('led-produced').textContent = totalProduced();
+  document.getElementById('led-dist').textContent = totalDistributed();
+  document.getElementById('led-sold').textContent = totalSold();
+  document.getElementById('led-adj').textContent = totalAdjusted();
+  if(!state.ledger.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-3);padding:20px">No entries yet</td></tr>'; return; }
+  tb.innerHTML = [...state.ledger].reverse().map(l => {
+    const v = state.vendors.find(v=>v.id===l.vendorId);
+    return `<tr>
+      <td style="font-size:12px;color:var(--ink-3)">${l.time}</td>
+      <td><strong>${l.type}</strong></td>
+      <td>${v?v.name:'—'}</td>
+      <td style="color:var(--brand)"><strong>${l.qty}</strong></td>
+      <td style="font-size:13px;color:var(--ink-2)">${l.notes||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+function refreshDashboard() {
+  const produced = totalProduced();
+  const sold = totalSold();
+  const distributed = totalDistributed();
+  const allRaw = state.vendors.reduce((s,v)=>s+vendorRaw(v.id),0);
+  const allSold = totalSold();
+  document.getElementById('m-produced').textContent = produced.toLocaleString();
+  document.getElementById('m-sold').textContent = allSold.toLocaleString();
+  document.getElementById('m-cooked').textContent = allSold.toLocaleString();
+  document.getElementById('m-raw').textContent = allRaw.toLocaleString();
+  document.getElementById('m-vendors').textContent = state.vendors.filter(v=>v.active).length;
+  document.getElementById('m-credit').textContent = totalCredits().toLocaleString();
+  renderTopVendors();
+  renderChart();
+}
+function renderTopVendors() {
+  const el = document.getElementById('top-vendors-list');
+  if(!el) return;
+  const sorted = [...state.vendors].filter(v=>vendorSold(v.id)>0)
+    .sort((a,b)=>vendorSold(b.id)-vendorSold(a.id)).slice(0,6);
+  if(!sorted.length) { el.innerHTML = '<p style="color:var(--ink-3);font-size:13px;padding:16px 0">No sales declared yet</p>'; return; }
+  const max = vendorSold(sorted[0].id) || 1;
+  el.innerHTML = sorted.map(v => {
+    const pct = Math.round((vendorSold(v.id)/max)*100);
+    return `<div class="vendor-bar-wrap">
+      <div class="vendor-bar-label"><span>${v.name}</span><span style="font-weight:500">${vendorSold(v.id)}</span></div>
+      <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+function renderChart() {
+  const el = document.getElementById('vendorChart');
+  if(!el) return;
+  const vendors = state.vendors.filter(v=>vendorDist(v.id)>0).slice(0,8);
+  const labels = vendors.map(v=>v.name);
+  const distData = vendors.map(v=>vendorDist(v.id));
+  const soldData = vendors.map(v=>vendorSold(v.id));
+  const rawData = vendors.map(v=>vendorRaw(v.id));
+  if(chart) { chart.destroy(); chart = null; }
+  chart = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Distributed', data: distData, backgroundColor: 'rgba(216,90,48,0.2)', borderColor: '#D85A30', borderWidth: 2, borderRadius: 4 },
+        { label: 'Sold', data: soldData, backgroundColor: 'rgba(29,158,117,0.85)', borderColor: '#0F6E56', borderWidth: 1, borderRadius: 4 },
+        { label: 'Remaining Raw', data: rawData, backgroundColor: 'rgba(239,159,39,0.7)', borderColor: '#BA7517', borderWidth: 1, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 12 }, boxWidth: 12 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+}
+
+// ============================================================
+//  REFRESH ALL
+// ============================================================
+function refreshAll() {
+  refreshSelects();
+  renderProdTable();
+  renderVendorTable();
+  renderDistTable();
+  renderDeclareTable();
+  renderAdjTable();
+  renderLedger();
+  refreshDashboard();
+  // Update dist available
+  const da = document.getElementById('dist-available');
+  if(da) da.textContent = remainingInWarehouse();
+}
+
+// ============================================================
+//  EXPORT / IMPORT
+// ============================================================
+function exportDay() {
+  const today = new Date().toISOString().split('T')[0];
+  const summary = {
+    exportDate: today,
+    exportTime: new Date().toLocaleTimeString('en-PH'),
+    state: JSON.parse(JSON.stringify(state)),
+    summary: {
+      produced: totalProduced(),
+      distributed: totalDistributed(),
+      sold: totalSold(),
+      remainingWarehouse: remainingInWarehouse(),
+      remainingRawVendors: state.vendors.reduce((s,v)=>s+vendorRaw(v.id),0),
+      totalCredits: totalCredits(),
+    }
+  };
+  const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tacotrack-${today}.json`;
+  a.click();
+  toast('📥 End-of-day export downloaded!', 'success');
+}
+
+function importDay(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.state) { toast('Invalid export file.','error'); return; }
+      // Carry over: vendors, remaining raw as carryoverRaw
+      state.vendors = data.state.vendors || [];
+      state.carryoverRaw = data.summary ? data.summary.remainingWarehouse : 0;
+      state.production = [];
+      state.distributions = [];
+      state.adjustments = [];
+      state.ledger = [];
+      // Set new date
+      state.date = new Date().toISOString().split('T')[0];
+      ['prod-date','dist-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = state.date; });
+      const preview = document.getElementById('import-preview');
+      if(preview) {
+        preview.innerHTML = `
+          <div class="card-box" style="background:var(--accent-soft);border-color:var(--accent)">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;color:#085041;margin-bottom:8px">✅ Import Successful</div>
+            <div style="font-size:13px;color:#0F6E56">
+              From: <strong>${data.exportDate}</strong><br>
+              Vendors carried over: <strong>${state.vendors.length}</strong><br>
+              Carryover raw stock: <strong>${state.carryoverRaw}</strong> tacos<br>
+              Credits from previous day: <strong>${data.summary.totalCredits||0}</strong>
+            </div>
+          </div>`;
+      }
+      toast(`✅ Imported from ${data.exportDate}. Vendors & stock carried over.`,'success');
+      refreshAll();
+    } catch(err) {
+      toast('Failed to parse file. Make sure it is a valid TacoTrack export.','error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Declare sold vendor change
+document.addEventListener('change', function(e) {
+  if(e.target.id === 'declare-vendor') {
+    const id = e.target.value;
+    document.getElementById('declare-raw').textContent = vendorDist(id);
+    document.getElementById('declare-already').textContent = vendorSold(id);
+  }
+});
+</script>
+</body>
+</html>
