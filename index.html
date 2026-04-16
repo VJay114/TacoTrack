@@ -197,9 +197,6 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 @media(max-width:600px){.two-col,.three-col{grid-template-columns:1fr;}}
-  a:not([href]):not([class]), a:not([href]):not([class]):hover {
-  color: white;
-}
 </style>
 </head>
 <body>
@@ -368,7 +365,7 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
     <!-- ============ DISTRIBUTION ============ -->
     <div class="page" id="page-distribution">
       <div class="page-title">Distribute Tacos</div>
-      <div class="page-sub">Assign raw tacos to vendors. Available stock updates in real time.</div>
+      <div class="page-sub">Assign cooked and/or raw tacos to vendors. Stock deducted from warehouse.</div>
       <div class="row g-3">
         <div class="col-lg-5">
           <div class="card-tt">
@@ -378,10 +375,17 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
               <label class="form-label">Vendor</label>
               <select class="form-select" id="dist-vendor" style="width:100%"></select>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Quantity (Raw)</label>
-              <input type="number" class="form-control" id="dist-qty" placeholder="e.g. 80" min="1">
+            <div class="two-col mb-3">
+              <div>
+                <label class="form-label">Qty — Cooked</label>
+                <input type="number" class="form-control" id="dist-qty-cooked" placeholder="0" min="0" value="0">
+              </div>
+              <div>
+                <label class="form-label">Qty — Raw</label>
+                <input type="number" class="form-control" id="dist-qty-raw" placeholder="0" min="0" value="0">
+              </div>
             </div>
+            <div style="font-size:12px;color:var(--ctxt3);margin-bottom:12px">Total to distribute: <strong id="dist-total-preview" style="color:var(--ctxt2)">0</strong></div>
             <button class="btn-tt btn-primary" onclick="addDistribution()">Distribute →</button>
           </div>
         </div>
@@ -389,7 +393,7 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
           <div class="card-tt">
             <div class="sec-title">Distribution Log</div>
             <table class="tt-table">
-              <thead><tr><th>Vendor</th><th class="num">Distributed</th><th class="num">Sold</th><th class="num">Remaining</th><th>Status</th></tr></thead>
+              <thead><tr><th>Vendor</th><th class="num">Cooked</th><th class="num">Raw</th><th class="num">Total</th><th class="num">Sold</th><th class="num">Remaining</th><th>Status</th></tr></thead>
               <tbody id="dist-table"></tbody>
             </table>
           </div>
@@ -676,7 +680,9 @@ function emptyRow(cols){return `<tr><td colspan="${cols}" class="empty-state"><d
 function totalBalance(){return S.balance.reduce((s,b)=>s+b.qty,0);}
 function balBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+b.qty,0);}
 function totalDist(){return S.distributions.reduce((s,d)=>s+d.qty,0);}
-function vendorDist(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+d.qty,0);}
+function vendorDist(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+(n(d.qty)||n(d.qtyCooked)+n(d.qtyRaw)),0);}
+function vendorDistCooked(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+n(d.qtyCooked),0);}
+function vendorDistRaw(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+n(d.qtyRaw),0);}
 function getSub(vid){return S.submissions.find(s=>s.vendorId===vid);}
 function totalSoldCooked(){return S.submissions.reduce((s,x)=>s+n(x.soldCooked),0);}
 function totalSoldRaw(){return S.submissions.reduce((s,x)=>s+n(x.soldRaw),0);}
@@ -796,15 +802,19 @@ function renderVendorTable(){
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function addDistribution(){
   const vid=document.getElementById('dist-vendor').value;
-  const qty=n(document.getElementById('dist-qty').value);
+  const qc=n(document.getElementById('dist-qty-cooked').value);
+  const qr=n(document.getElementById('dist-qty-raw').value);
+  const total=qc+qr;
   const avail=warehouseAvail();
   if(!vid){toast('Select a vendor.','err');return;}
-  if(qty<1){toast('Enter a valid quantity.','err');return;}
-  if(qty>avail){toast(`Only ${avail} tacos available in warehouse.`,'err');return;}
-  S.distributions.push({id:uid(),vendorId:vid,qty});
-  pushLedger('Distribution',vid,qty,`Raw distributed to ${vname(vid)}`);
-  document.getElementById('dist-qty').value='';
-  toast(`Distributed ${qty} raw tacos to ${vname(vid)}.`,'ok');
+  if(total<1){toast('Enter at least one quantity (cooked or raw).','err');return;}
+  if(total>avail){toast(`Only ${avail} tacos available in warehouse.`,'err');return;}
+  S.distributions.push({id:uid(),vendorId:vid,qtyCooked:qc,qtyRaw:qr,qty:total});
+  pushLedger('Distribution',vid,total,`Cooked:${qc} Raw:${qr} → ${vname(vid)}`);
+  document.getElementById('dist-qty-cooked').value=0;
+  document.getElementById('dist-qty-raw').value=0;
+  document.getElementById('dist-total-preview').textContent=0;
+  toast(`Distributed ${qc} cooked + ${qr} raw to ${vname(vid)}.`,'ok');
   refreshAll();
 }
 function delDist(id){S.distributions=S.distributions.filter(d=>d.id!==id);refreshAll();}
@@ -813,17 +823,24 @@ function renderDistTable(){
   if(!tb)return;
   const da=document.getElementById('dist-avail-show');
   if(da)da.textContent=warehouseAvail().toLocaleString();
-  if(!S.distributions.length){tb.innerHTML=emptyRow(5);return;}
+  if(!S.distributions.length){tb.innerHTML=emptyRow(7);return;}
   // Group by vendor
   const map={};
-  S.distributions.forEach(d=>{if(!map[d.vendorId])map[d.vendorId]={dist:0};map[d.vendorId].dist+=d.qty;});
+  S.distributions.forEach(d=>{
+    if(!map[d.vendorId])map[d.vendorId]={cooked:0,raw:0,total:0};
+    map[d.vendorId].cooked+=n(d.qtyCooked);
+    map[d.vendorId].raw+=n(d.qtyRaw);
+    map[d.vendorId].total+=n(d.qty)||n(d.qtyCooked)+n(d.qtyRaw);
+  });
   tb.innerHTML=Object.entries(map).map(([vid,m])=>{
     const sub=getSub(vid);
     const sold=(sub?n(sub.soldCooked)+n(sub.soldRaw):0);
-    const rem=(sub?n(sub.remCooked)+n(sub.remRaw):m.dist-sold);
+    const rem=(sub?n(sub.remCooked)+n(sub.remRaw):m.total-sold);
     return `<tr>
       <td><strong>${vname(vid)}</strong></td>
-      <td class="num">${m.dist}</td>
+      <td class="num"><span class="bdg bdg-cooked" style="font-size:11px">${m.cooked}</span></td>
+      <td class="num"><span class="bdg bdg-raw" style="font-size:11px">${m.raw}</span></td>
+      <td class="num">${m.total}</td>
       <td class="num">${sold}</td>
       <td class="num">${rem}</td>
       <td><span class="bdg ${sub?'bdg-cooked':'bdg-raw'}">${sub?'Reported':'Pending'}</span></td>
@@ -843,7 +860,9 @@ function updateSubVendorInfo(){
   const existing=getSub(vid);
   box.classList.add('show');
   content.innerHTML=`
-    <div class="vib-item"><span class="vib-lbl">Distributed</span><span class="vib-val">${dist}</span></div>
+    <div class="vib-item"><span class="vib-lbl">Total Distributed</span><span class="vib-val">${dist}</span></div>
+    <div class="vib-item"><span class="vib-lbl">Cooked</span><span class="vib-val" style="color:var(--c5)">${vendorDistCooked(vid)}</span></div>
+    <div class="vib-item"><span class="vib-lbl">Raw</span><span class="vib-val" style="color:#b06a10">${vendorDistRaw(vid)}</span></div>
     <div class="vib-item"><span class="vib-lbl">Status</span><span class="vib-val" style="font-size:13px">${existing?'<span class="bdg bdg-cooked">Reported</span>':'<span class="bdg bdg-raw">Pending</span>'}</span></div>
   `;
   if(existing){
@@ -1186,58 +1205,58 @@ function exportDay(){
 }
 
 function showImportModal(){document.getElementById('import-modal').classList.add('show');}
-function closeModal(){document.getElementById('import-modal').classList.remove('show');importMode=null;}
+function closeModal(){document.getElementById('import-modal').classList.remove('show');}
 
 function triggerImport(mode){
   importMode=mode;
-  document.getElementById('import-file').click();
+  // Close modal visually but keep importMode intact — file input fires after modal closes
+  closeModal();
+  // Small delay so modal close doesn't interfere with file dialog on some browsers
+  setTimeout(()=>{ document.getElementById('import-file').click(); }, 80);
 }
 
 function handleImport(event){
-  closeModal();
   const file=event.target.files[0];
-  if(!file)return;
+  if(!file){event.target.value='';return;}
   const reader=new FileReader();
   reader.onload=(e)=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!data.state){toast('Invalid TacoTrack export file.','err');return;}
-      if(importMode==='view'){
-        // Load as view-only (read-only snapshot view on dashboard)
-        const snap=data.state;
-        S=JSON.parse(JSON.stringify(snap));
-        toast(`Viewing snapshot from ${data.exportDate}. Data loaded read-only.`,'ok');
+      if(!data.state){toast('Invalid TacoTrack export file.','err');event.target.value='';return;}
+      const mode=importMode;
+      importMode=null;
+      if(mode==='view'){
+        S=JSON.parse(JSON.stringify(data.state));
+        toast(`Viewing snapshot from ${data.exportDate}. Full data loaded.`,'ok');
         refreshAll();
-        // nav to dashboard
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         document.getElementById('page-dashboard').classList.add('active');
         document.querySelectorAll('.sb-nav a').forEach(a=>a.classList.remove('active'));
         document.querySelector('.sb-nav a').classList.add('active');
-      } else if(importMode==='setup'){
-        // Setup: carry over vendors and remaining as balance
+        document.getElementById('topbar-title').textContent='Dashboard';
+      } else if(mode==='setup'){
         S={vendors:[],balance:[],distributions:[],submissions:[],adjustments:[],ledger:[]};
-        S.vendors=data.state.vendors||[];
-        // Carry remaining cooked
+        S.vendors=(data.state.vendors||[]).map(v=>({...v,active:true}));
         if(data.summary&&data.summary.totalRemCooked>0){
           S.balance.push({id:uid(),source:'remaining_cooked',qty:data.summary.totalRemCooked,notes:`Carry-over from ${data.exportDate}`});
         }
-        // Carry remaining raw (from vendors)
         if(data.summary&&data.summary.totalRemRaw>0){
-          S.balance.push({id:uid(),source:'remaining_raw',qty:data.summary.totalRemRaw,notes:`Carry-over from ${data.exportDate}`});
+          S.balance.push({id:uid(),source:'remaining_raw',qty:data.summary.totalRemRaw,notes:`Vendor remaining raw from ${data.exportDate}`});
         }
-        // Carry warehouse remaining
         if(data.summary&&data.summary.warehouseRemaining>0){
           S.balance.push({id:uid(),source:'remaining_raw',qty:data.summary.warehouseRemaining,notes:`Warehouse carry-over from ${data.exportDate}`});
         }
-        toast(`Setup loaded from ${data.exportDate}. Vendors (${S.vendors.length}) and remaining stock imported.`,'ok');
+        toast(`Setup from ${data.exportDate}: ${S.vendors.length} vendors + ${totalBalance()} tacos loaded.`,'ok');
         refreshAll();
+      } else {
+        toast('Import mode unclear. Please try again.','err');
       }
     }catch(err){
       toast('Failed to parse file. Must be a valid TacoTrack JSON.','err');
     }
+    event.target.value='';
   };
   reader.readAsText(file);
-  event.target.value='';
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1245,9 +1264,17 @@ function handleImport(event){
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 document.addEventListener('change',function(e){
   if(e.target.id==='sub-vendor') updateSubVendorInfo();
-  if(e.target.id==='dist-vendor'){
+  if(e.target.id==='dist-vendor'||e.target.id==='dist-qty-cooked'||e.target.id==='dist-qty-raw'){
     const da=document.getElementById('dist-avail-show');
     if(da)da.textContent=warehouseAvail().toLocaleString();
+    const tp=document.getElementById('dist-total-preview');
+    if(tp)tp.textContent=n(document.getElementById('dist-qty-cooked')?.value)+n(document.getElementById('dist-qty-raw')?.value);
+  }
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='dist-qty-cooked'||e.target.id==='dist-qty-raw'){
+    const tp=document.getElementById('dist-total-preview');
+    if(tp)tp.textContent=n(document.getElementById('dist-qty-cooked').value)+n(document.getElementById('dist-qty-raw').value);
   }
 });
 </script>
