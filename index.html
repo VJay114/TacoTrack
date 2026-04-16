@@ -197,9 +197,8 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 @media(max-width:600px){.two-col,.three-col{grid-template-columns:1fr;}}
-  a:not([href]):not([class]), a:not([href]):not([class]):hover {
+    a:not([href]):not([class]), a:not([href]):not([class]):hover {
   color: white;
- 
 }
 </style>
 </head>
@@ -336,16 +335,31 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
           <div class="card-tt">
             <div class="sec-title">Add Balance Entry</div>
             <div class="mb-3">
-              <label class="form-label">Source</label>
-              <select class="form-select" id="bal-source">
+              <label class="form-label">Balance From</label>
+              <select class="form-select" id="bal-source" onchange="toggleBalFields()">
                 <option value="production">Production (fresh batch)</option>
-                <option value="remaining_cooked">Remaining — Cooked (previous day)</option>
-                <option value="remaining_raw">Remaining — Raw (previous day)</option>
+                <option value="remaining">Remaining (previous day)</option>
               </select>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Quantity</label>
-              <input type="number" class="form-control" id="bal-qty" placeholder="e.g. 300" min="1">
+            <!-- Production: raw only -->
+            <div id="bal-fields-production">
+              <div class="mb-3">
+                <label class="form-label">Quantity (Raw)</label>
+                <input type="number" class="form-control" id="bal-qty-raw-prod" placeholder="e.g. 300" min="1">
+              </div>
+            </div>
+            <!-- Remaining: cooked + raw -->
+            <div id="bal-fields-remaining" style="display:none">
+              <div class="two-col mb-3">
+                <div>
+                  <label class="form-label">Cooked</label>
+                  <input type="number" class="form-control" id="bal-qty-cooked-rem" placeholder="0" min="0" value="0">
+                </div>
+                <div>
+                  <label class="form-label">Raw</label>
+                  <input type="number" class="form-control" id="bal-qty-raw-rem" placeholder="0" min="0" value="0">
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Notes (optional)</label>
@@ -358,7 +372,7 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
           <div class="card-tt">
             <div class="sec-title">Balance Entries</div>
             <table class="tt-table">
-              <thead><tr><th>Source</th><th class="num">Qty</th><th>Notes</th><th></th></tr></thead>
+              <thead><tr><th>Source</th><th class="num">Cooked</th><th class="num">Raw</th><th class="num">Total</th><th>Notes</th><th></th></tr></thead>
               <tbody id="balance-table"></tbody>
             </table>
           </div>
@@ -681,8 +695,18 @@ function emptyRow(cols){return `<tr><td colspan="${cols}" class="empty-state"><d
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  COMPUTED
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function totalBalance(){return S.balance.reduce((s,b)=>s+b.qty,0);}
-function balBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+b.qty,0);}
+function totalBalance(){return S.balance.reduce((s,b)=>s+(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)),0);}
+function balBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)),0);}
+function balCookedBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+n(b.qtyCooked),0);}
+function balRawBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+n(b.qtyRaw),0);}
+// Warehouse remaining splits: cooked pool = all carry-over cooked; raw pool = production raw + carry-over raw - distributed
+function warehouseRemCooked(){
+  return balCookedBySource('remaining')+balCookedBySource('remaining_cooked');
+}
+function warehouseRemRaw(){
+  const rawIn=balRawBySource('production')+balRawBySource('remaining')+balRawBySource('remaining_raw');
+  return Math.max(0, rawIn - totalDist());
+}
 function totalDist(){return S.distributions.reduce((s,d)=>s+d.qty,0);}
 function vendorDist(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+(n(d.qty)||n(d.qtyCooked)+n(d.qtyRaw)),0);}
 function vendorDistCooked(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+n(d.qtyCooked),0);}
@@ -721,6 +745,7 @@ function initSelect2s(){
     const el=$('#'+id);
     if(el.length) el.select2({theme:'bootstrap-5',width:'100%',placeholder:'Select vendor',allowClear:id==='adj-vendor'});
   });
+  $('#sub-vendor').on('change',function(){updateSubVendorInfo();});
 }
 function refreshSelects(){
   const ids=['dist-vendor','sub-vendor','adj-vendor'];
@@ -739,28 +764,46 @@ function refreshSelects(){
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  BALANCE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function toggleBalFields(){
+  const src=document.getElementById('bal-source').value;
+  document.getElementById('bal-fields-production').style.display=src==='production'?'':'none';
+  document.getElementById('bal-fields-remaining').style.display=src==='remaining'?'':'none';
+}
 function addBalance(){
   const source=document.getElementById('bal-source').value;
-  const qty=n(document.getElementById('bal-qty').value);
   const notes=document.getElementById('bal-notes').value.trim();
-  if(qty<1){toast('Enter a valid quantity.','err');return;}
-  S.balance.push({id:uid(),source,qty,notes});
-  const lbl={production:'Production batch',remaining_cooked:'Remaining Cooked carry-over',remaining_raw:'Remaining Raw carry-over'};
-  pushLedger('Balance: '+lbl[source],'',qty,notes||lbl[source]);
-  document.getElementById('bal-qty').value='';
+  let qtyCooked=0, qtyRaw=0;
+  if(source==='production'){
+    qtyRaw=n(document.getElementById('bal-qty-raw-prod').value);
+    if(qtyRaw<1){toast('Enter a valid raw quantity.','err');return;}
+  } else {
+    qtyCooked=n(document.getElementById('bal-qty-cooked-rem').value);
+    qtyRaw=n(document.getElementById('bal-qty-raw-rem').value);
+    if(qtyCooked<1&&qtyRaw<1){toast('Enter at least one quantity.','err');return;}
+  }
+  const total=qtyCooked+qtyRaw;
+  S.balance.push({id:uid(),source,qtyCooked,qtyRaw,qty:total,notes});
+  const lbl={production:'Production batch',remaining:'Remaining carry-over'};
+  pushLedger('Balance: '+lbl[source],'',total,notes||(source==='production'?`Raw:${qtyRaw}`:`Cooked:${qtyCooked} Raw:${qtyRaw}`));
+  // reset
+  document.getElementById('bal-qty-raw-prod').value='';
+  document.getElementById('bal-qty-cooked-rem').value=0;
+  document.getElementById('bal-qty-raw-rem').value=0;
   document.getElementById('bal-notes').value='';
-  toast(`✓ Added ${qty} tacos (${lbl[source]}).`,'ok');
+  toast(`✓ Added ${total} tacos (${lbl[source]}).`,'ok');
   refreshAll();
 }
 function delBalance(id){S.balance=S.balance.filter(b=>b.id!==id);refreshAll();}
 function renderBalanceTable(){
   const tb=document.getElementById('balance-table');
   if(!tb)return;
-  if(!S.balance.length){tb.innerHTML=emptyRow(4);return;}
-  const labels={production:'<span class="bdg bdg-prod">Production</span>',remaining_cooked:'<span class="bdg bdg-cooked">Rem. Cooked</span>',remaining_raw:'<span class="bdg bdg-raw">Rem. Raw</span>'};
+  if(!S.balance.length){tb.innerHTML=emptyRow(6);return;}
+  const labels={production:'<span class="bdg bdg-prod">Production</span>',remaining:'<span class="bdg bdg-cooked">Remaining</span>',remaining_cooked:'<span class="bdg bdg-cooked">Rem. Cooked</span>',remaining_raw:'<span class="bdg bdg-raw">Rem. Raw</span>'};
   tb.innerHTML=S.balance.map(b=>`<tr>
     <td>${labels[b.source]||b.source}</td>
-    <td class="num">${b.qty.toLocaleString()}</td>
+    <td class="num">${n(b.qtyCooked).toLocaleString()}</td>
+    <td class="num">${n(b.qtyRaw).toLocaleString()}</td>
+    <td class="num"><strong>${(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)).toLocaleString()}</strong></td>
     <td style="color:var(--ctxt3);font-size:12px">${b.notes||'—'}</td>
     <td><button class="btn-sm-del" onclick="delBalance('${b.id}')">✕</button></td>
   </tr>`).join('');
@@ -859,6 +902,15 @@ function updateSubVendorInfo(){
   const vid=document.getElementById('sub-vendor').value;
   const box=document.getElementById('sub-vib');
   const content=document.getElementById('sub-vib-content');
+  // Always clear all inputs first
+  ['sold-cooked','sold-raw','rem-cooked','rem-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{
+    const el=document.getElementById('sub-'+k);
+    if(el) el.value=0;
+  });
+  const notesEl=document.getElementById('sub-notes');
+  if(notesEl) notesEl.value='';
+  const valBox=document.getElementById('sub-validation');
+  if(valBox) valBox.style.display='none';
   if(!vid){box.classList.remove('show');return;}
   const dist=vendorDist(vid);
   const existing=getSub(vid);
@@ -869,10 +921,12 @@ function updateSubVendorInfo(){
     <div class="vib-item"><span class="vib-lbl">Raw</span><span class="vib-val" style="color:#b06a10">${vendorDistRaw(vid)}</span></div>
     <div class="vib-item"><span class="vib-lbl">Status</span><span class="vib-val" style="font-size:13px">${existing?'<span class="bdg bdg-cooked">Reported</span>':'<span class="bdg bdg-raw">Pending</span>'}</span></div>
   `;
+  // If existing report, pre-fill
   if(existing){
-    ['sold-cooked','sold-raw','rem-cooked','rem-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{
-      const map={'sold-cooked':'soldCooked','sold-raw':'soldRaw','rem-cooked':'remCooked','rem-raw':'remRaw','int-cooked':'intCooked','int-raw':'intRaw','cred-cooked':'credCooked','cred-raw':'credRaw'};
-      document.getElementById('sub-'+k).value=n(existing[map[k]])||0;
+    const map={'sold-cooked':'soldCooked','sold-raw':'soldRaw','rem-cooked':'remCooked','rem-raw':'remRaw','int-cooked':'intCooked','int-raw':'intRaw','cred-cooked':'credCooked','cred-raw':'credRaw'};
+    Object.entries(map).forEach(([k,mk])=>{
+      const el=document.getElementById('sub-'+k);
+      if(el) el.value=n(existing[mk])||0;
     });
   }
 }
@@ -1021,12 +1075,16 @@ function refreshDashboard(){
   const bs=document.getElementById('w-balance-subs');
   if(bs){
     const prod=balBySource('production');
-    const rc=balBySource('remaining_cooked');
-    const rr=balBySource('remaining_raw');
+    const rc=balCookedBySource('remaining')+balCookedBySource('remaining_cooked');
+    const rr=balRawBySource('remaining')+balRawBySource('remaining_raw');
     const remAfterDist=warehouseAvail();
+    const wRemC=warehouseRemCooked();
+    const wRemR=warehouseRemRaw();
     bs.innerHTML=wsub('From Production',prod)+wsub('Carry-over Cooked',rc)+wsub('Carry-over Raw',rr)+
       '<div class="divider" style="margin:6px 0"></div>'+
-      wsub('Warehouse Remaining',remAfterDist)+wsub('Distributed Out',totalDist());
+      wsub('Warehouse Remaining',remAfterDist)+
+      wsub('↳ Cooked',wRemC)+wsub('↳ Raw',wRemR)+
+      wsub('Distributed Out',totalDist());
   }
 
   // W2 Distributed
