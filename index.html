@@ -197,9 +197,7 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 @media(max-width:600px){.two-col,.three-col{grid-template-columns:1fr;}}
-      a:not([href]):not([class]), a:not([href]):not([class]):hover {
-  color: white;
-}
+a:not([href]):not([class]), a:not([href]):not([class]):hover {color: white;}
 </style>
 </head>
 <body>
@@ -440,44 +438,68 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
             <div class="two-col mb-3">
               <div>
                 <label class="form-label">Sold (Cooked)</label>
-                <input type="number" class="form-control sub-input" id="sub-sold-cooked" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'cooked');recomputeRemaining()">
+                <input type="number" class="form-control sub-input" id="sub-sold-cooked" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'cooked')" onkeyup="recomputeRemaining()">
               </div>
               <div>
                 <label class="form-label">Sold (Raw)</label>
-                <input type="number" class="form-control sub-input" id="sub-sold-raw" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'raw');recomputeRemaining()">
+                <input type="number" class="form-control sub-input" id="sub-sold-raw" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'raw')" onkeyup="recomputeRemaining()">
               </div>
             </div>
             <div class="sec-title">Internal Use <span style="font-size:10px;color:var(--ctxt3)">(deducted, free)</span></div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Internal (Cooked)</label>
-                <input type="number" class="form-control sub-input" id="sub-int-cooked" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'cooked');recomputeRemaining()">
+            <div class="mb-3">
+              <div class="two-col" style="margin-bottom:6px">
+                <div>
+                  <label class="form-label">Internal (Cooked)</label>
+                  <input type="number" class="form-control sub-input" id="sub-int-cooked" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
+                </div>
+                <div>
+                  <label class="form-label">Internal (Raw)</label>
+                  <input type="number" class="form-control sub-input" id="sub-int-raw" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
+                </div>
               </div>
-              <div>
-                <label class="form-label">Internal (Raw)</label>
-                <input type="number" class="form-control sub-input" id="sub-int-raw" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'raw');recomputeRemaining()">
+              <div class="two-col">
+                <div>
+                  <label class="form-label" style="font-size:10px">Reason (Cooked)</label>
+                  <input type="text" class="form-control" id="sub-int-cooked-notes" placeholder="e.g. product test" style="font-size:12px;padding:6px 9px">
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:10px">Reason (Raw)</label>
+                  <input type="text" class="form-control" id="sub-int-raw-notes" placeholder="e.g. damaged" style="font-size:12px;padding:6px 9px">
+                </div>
               </div>
             </div>
             <div class="sec-title">Credit <span style="font-size:10px;color:var(--ctxt3)">(deducted, pay later)</span></div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Credit (Cooked)</label>
-                <input type="number" class="form-control sub-input" id="sub-cred-cooked" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'cooked');recomputeRemaining()">
+            <div class="mb-3">
+              <div class="two-col" style="margin-bottom:6px">
+                <div>
+                  <label class="form-label">Credit (Cooked)</label>
+                  <input type="number" class="form-control sub-input" id="sub-cred-cooked" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
+                </div>
+                <div>
+                  <label class="form-label">Credit (Raw)</label>
+                  <input type="number" class="form-control sub-input" id="sub-cred-raw" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
+                </div>
               </div>
-              <div>
-                <label class="form-label">Credit (Raw)</label>
-                <input type="number" class="form-control sub-input" id="sub-cred-raw" placeholder="0" min="0" value="0" oninput="clampSubInput(this,'raw');recomputeRemaining()">
+              <div class="two-col">
+                <div>
+                  <label class="form-label" style="font-size:10px">Reason (Cooked)</label>
+                  <input type="text" class="form-control" id="sub-cred-cooked-notes" placeholder="e.g. regular customer" style="font-size:12px;padding:6px 9px">
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:10px">Reason (Raw)</label>
+                  <input type="text" class="form-control" id="sub-cred-raw-notes" placeholder="e.g. bulk order" style="font-size:12px;padding:6px 9px">
+                </div>
               </div>
             </div>
-            <div class="sec-title">Remaining <span style="font-size:10px;color:var(--ctxt3)">(auto-computed)</span></div>
+            <div class="sec-title">Remaining</div>
             <div class="two-col mb-3">
               <div>
                 <label class="form-label">Remaining (Cooked)</label>
-                <input type="number" class="form-control" id="sub-rem-cooked" value="0" readonly style="background:var(--c3);color:var(--c5);font-weight:600;cursor:default;">
+                <input type="number" class="form-control sub-input" id="sub-rem-cooked" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
               </div>
               <div>
                 <label class="form-label">Remaining (Raw)</label>
-                <input type="number" class="form-control" id="sub-rem-raw" value="0" readonly style="background:var(--c3);color:#b06a10;font-weight:600;cursor:default;">
+                <input type="number" class="form-control sub-input" id="sub-rem-raw" placeholder="0" min="0" value="0" onblur="handleSubInput(this,'any')" onkeyup="recomputeRemaining()">
               </div>
             </div>
             <div class="mb-3">
@@ -652,16 +674,16 @@ h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  STATE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let S = {
-  vendors:       [],  // {id,name,location,contact,active}
-  balance:       [],  // {id,source,qty,notes}  source: production|remaining_cooked|remaining_raw
-  distributions: [],  // {id,vendorId,qty}  qty = raw
-  submissions:   [],  // {id,vendorId,soldCooked,soldRaw,remCooked,remRaw,intCooked,intRaw,credCooked,credRaw,notes}
-  adjustments:   [],  // {id,type,vendorId,qty,notes,ts}
-  ledger:        [],  // {ts,entry,vendorId,qty,notes}
+var S = {
+  vendors:       [],
+  balance:       [],
+  distributions: [],
+  submissions:   [],
+  adjustments:   [],
+  ledger:        [],
 };
-let vchart = null;
-let importMode = null;
+var vchart = null;
+var importMode = null;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  INIT
@@ -905,48 +927,40 @@ function getSubVid(){return document.getElementById('sub-vendor').value;}
 function subDistCooked(){const vid=getSubVid();return vid?vendorDistCooked(vid):0;}
 function subDistRaw(){const vid=getSubVid();return vid?vendorDistRaw(vid):0;}
 
-function clampSubInput(el, pool){
-  let val=n(el.value);
-  if(val<0){val=0;el.value=0;}
-  // Sum all cooked or raw inputs except this one, then clamp
-  const poolMax = pool==='cooked' ? subDistCooked() : subDistRaw();
-  const ids = pool==='cooked'
-    ? ['sub-sold-cooked','sub-int-cooked','sub-cred-cooked']
-    : ['sub-sold-raw','sub-int-raw','sub-cred-raw'];
-  const others = ids.filter(id=>id!==el.id).reduce((s,id)=>s+n(document.getElementById(id)?.value),0);
-  const max = Math.max(0, poolMax - others);
-  if(val > max){
-    val = max;
-    el.value = max;
-    el.style.borderColor='#E24B4A';
-    setTimeout(()=>{el.style.borderColor='';},1200);
-  }
+function handleSubInput(el, pool){
+  // onblur: only clamp negatives
+  let val = parseInt(el.value, 10);
+  if (isNaN(val) || val < 0) { el.value = 0; }
+  recomputeRemaining();
 }
 
 function recomputeRemaining(){
-  const vid=getSubVid();
-  if(!vid) return;
-  const dc=vendorDistCooked(vid), dr=vendorDistRaw(vid);
-  const sc=n(document.getElementById('sub-sold-cooked').value);
-  const sr=n(document.getElementById('sub-sold-raw').value);
-  const ic=n(document.getElementById('sub-int-cooked').value);
-  const ir=n(document.getElementById('sub-int-raw').value);
-  const cc=n(document.getElementById('sub-cred-cooked').value);
-  const cr=n(document.getElementById('sub-cred-raw').value);
-  const remC=Math.max(0, dc-sc-ic-cc);
-  const remR=Math.max(0, dr-sr-ir-cr);
-  document.getElementById('sub-rem-cooked').value=remC;
-  document.getElementById('sub-rem-raw').value=remR;
-  // Show live total check in validation box
-  const total=sc+sr+remC+remR+ic+ir+cc+cr;
-  const dist=vendorDist(vid);
-  const valBox=document.getElementById('sub-validation');
-  if(total>dist){
-    valBox.style.display='block';
-    valBox.style.borderLeftColor='#E24B4A';
-    valBox.innerHTML=`<strong>Over by ${total-dist}</strong>: total accounted (${total}) exceeds distributed (${dist})`;
+  const vid = getSubVid();
+  const valBox = document.getElementById('sub-validation');
+  if (!vid) { if(valBox) valBox.style.display='none'; return; }
+  const dist = vendorDist(vid);
+  const sc = parseInt(document.getElementById('sub-sold-cooked').value, 10) || 0;
+  const sr = parseInt(document.getElementById('sub-sold-raw').value, 10) || 0;
+  const rc = parseInt(document.getElementById('sub-rem-cooked').value, 10) || 0;
+  const rr = parseInt(document.getElementById('sub-rem-raw').value, 10) || 0;
+  const ic = parseInt(document.getElementById('sub-int-cooked').value, 10) || 0;
+  const ir = parseInt(document.getElementById('sub-int-raw').value, 10) || 0;
+  const cc = parseInt(document.getElementById('sub-cred-cooked').value, 10) || 0;
+  const cr = parseInt(document.getElementById('sub-cred-raw').value, 10) || 0;
+  const total = sc + sr + rc + rr + ic + ir + cc + cr;
+  const diff = dist - total;
+  if (diff === 0) {
+    valBox.style.display = 'block';
+    valBox.style.borderLeftColor = 'var(--c5)';
+    valBox.innerHTML = `<strong>✓ Balanced</strong> — total equals distributed (${dist})`;
+  } else if (diff > 0) {
+    valBox.style.display = 'block';
+    valBox.style.borderLeftColor = 'var(--c4)';
+    valBox.innerHTML = `<strong>${diff} unaccounted</strong> — total (${total}) is less than distributed (${dist})`;
   } else {
-    valBox.style.display='none';
+    valBox.style.display = 'block';
+    valBox.style.borderLeftColor = '#E24B4A';
+    valBox.innerHTML = `<strong>Over by ${Math.abs(diff)}</strong> — total (${total}) exceeds distributed (${dist})`;
   }
 }
 
@@ -955,13 +969,14 @@ function updateSubVendorInfo(){
   const box=document.getElementById('sub-vib');
   const content=document.getElementById('sub-vib-content');
   // Always clear all editable inputs
-  ['sold-cooked','sold-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{
+  ['sold-cooked','sold-raw','rem-cooked','rem-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{
     const el=document.getElementById('sub-'+k);
     if(el){el.value=0;el.style.borderColor='';}
   });
-  // Reset computed remaining
-  document.getElementById('sub-rem-cooked').value=0;
-  document.getElementById('sub-rem-raw').value=0;
+  ['int-cooked-notes','int-raw-notes','cred-cooked-notes','cred-raw-notes'].forEach(k=>{
+    const el=document.getElementById('sub-'+k);
+    if(el) el.value='';
+  });
   const notesEl=document.getElementById('sub-notes');
   if(notesEl) notesEl.value='';
   const valBox=document.getElementById('sub-validation');
@@ -978,10 +993,15 @@ function updateSubVendorInfo(){
   `;
   // If existing report, pre-fill editable fields then recompute remaining
   if(existing){
-    const map={'sold-cooked':'soldCooked','sold-raw':'soldRaw','int-cooked':'intCooked','int-raw':'intRaw','cred-cooked':'credCooked','cred-raw':'credRaw'};
+    const map={'sold-cooked':'soldCooked','sold-raw':'soldRaw','rem-cooked':'remCooked','rem-raw':'remRaw','int-cooked':'intCooked','int-raw':'intRaw','cred-cooked':'credCooked','cred-raw':'credRaw'};
     Object.entries(map).forEach(([k,mk])=>{
       const el=document.getElementById('sub-'+k);
       if(el) el.value=n(existing[mk])||0;
+    });
+    const notesMap={'int-cooked-notes':'intCookedNotes','int-raw-notes':'intRawNotes','cred-cooked-notes':'credCookedNotes','cred-raw-notes':'credRawNotes'};
+    Object.entries(notesMap).forEach(([k,mk])=>{
+      const el=document.getElementById('sub-'+k);
+      if(el) el.value=existing[mk]||'';
     });
     recomputeRemaining();
   }
@@ -1001,15 +1021,28 @@ function submitReport(){
     intRaw:n(document.getElementById('sub-int-raw').value),
     credCooked:n(document.getElementById('sub-cred-cooked').value),
     credRaw:n(document.getElementById('sub-cred-raw').value),
+    intCookedNotes:document.getElementById('sub-int-cooked-notes').value.trim(),
+    intRawNotes:document.getElementById('sub-int-raw-notes').value.trim(),
+    credCookedNotes:document.getElementById('sub-cred-cooked-notes').value.trim(),
+    credRawNotes:document.getElementById('sub-cred-raw-notes').value.trim(),
     notes:document.getElementById('sub-notes').value.trim(),
   };
   const total=vals.soldCooked+vals.soldRaw+vals.remCooked+vals.remRaw+vals.intCooked+vals.intRaw+vals.credCooked+vals.credRaw;
-  if(total>dist){toast(`Total (${total}) exceeds distributed (${dist}). Please correct the inputs.`,'err');return;}
+  if(total !== dist){
+    const diff = dist - total;
+    const msg = diff > 0
+      ? `Total (${total}) is ${diff} short of distributed (${dist}). All tacos must be accounted for.`
+      : `Total (${total}) exceeds distributed (${dist}) by ${Math.abs(diff)}.`;
+    toast(msg,'err');
+    recomputeRemaining();
+    return;
+  }
   S.submissions=S.submissions.filter(s=>s.vendorId!==vid);
   S.submissions.push({id:uid(),vendorId:vid,...vals});
   pushLedger('EOD Report',vid,vals.soldCooked+vals.soldRaw,`Sold C:${vals.soldCooked} R:${vals.soldRaw} Int:${vals.intCooked+vals.intRaw} Cred:${vals.credCooked+vals.credRaw}`);
   // clear
   ['sold-cooked','sold-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{const el=document.getElementById('sub-'+k);if(el)el.value=0;});
+  ['int-cooked-notes','int-raw-notes','cred-cooked-notes','cred-raw-notes'].forEach(k=>{const el=document.getElementById('sub-'+k);if(el)el.value='';});
   document.getElementById('sub-rem-cooked').value=0;
   document.getElementById('sub-rem-raw').value=0;
   document.getElementById('sub-notes').value='';
@@ -1169,14 +1202,16 @@ function refreshDashboard(){
   const vs=document.getElementById('w-vcount-subs');
   if(vs) vs.innerHTML=wsub('Total registered',S.vendors.length)+wsub('With distribution',S.vendors.filter(v=>vendorDist(v.id)>0).length);
 
-  // W6 Internal Use
+  // W6 Internal Use (EOD submissions + standalone adjustments)
   const ti=totalInternal();
-  document.getElementById('w-internal').textContent=ti.toLocaleString();
+  const adjInternal=S.adjustments.filter(a=>a.type==='internal'||a.type==='damage').reduce((s,a)=>s+a.qty,0);
+  const adjMissing=S.adjustments.filter(a=>a.type==='missing').reduce((s,a)=>s+a.qty,0);
+  document.getElementById('w-internal').textContent=(ti+adjInternal).toLocaleString();
   const is=document.getElementById('w-internal-subs');
   if(is){
     const ic=S.submissions.reduce((s,x)=>s+n(x.intCooked),0);
     const ir=S.submissions.reduce((s,x)=>s+n(x.intRaw),0);
-    is.innerHTML=wsub('Cooked (internal)',ic)+wsub('Raw (internal)',ir);
+    is.innerHTML=wsub('Cooked (internal)',ic)+wsub('Raw (internal)',ir)+wsub('Adj. (damage/other)',adjInternal)+wsub('Missing',adjMissing);
   }
 
   // Internal use table
@@ -1192,1369 +1227,39 @@ function refreshDashboard(){
 function renderDashInternalTable(){
   const tb=document.getElementById('dash-internal-table');
   if(!tb)return;
-  const rows=S.submissions.filter(s=>n(s.intCooked)+n(s.intRaw)>0);
+  const rows=[];
+  // From EOD submissions - split cooked and raw as separate rows
+  S.submissions.forEach(s=>{
+    if(n(s.intCooked)>0) rows.push({vendor:vname(s.vendorId),type:'Cooked',qty:n(s.intCooked),notes:s.intCookedNotes||s.notes||'—'});
+    if(n(s.intRaw)>0)    rows.push({vendor:vname(s.vendorId),type:'Raw',qty:n(s.intRaw),notes:s.intRawNotes||s.notes||'—'});
+  });
+  // From standalone adjustments (internal type)
+  S.adjustments.filter(a=>a.type==='internal'||a.type==='damage').forEach(a=>{
+    rows.push({vendor:a.vendorId?vname(a.vendorId):'Warehouse',type:a.type==='damage'?'Damage':'Internal',qty:a.qty,notes:a.notes||'—'});
+  });
   if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-state" style="padding:16px"><div class="ei">○</div>None recorded</td></tr>';return;}
-  tb.innerHTML=rows.map(s=>`<tr>
-    <td style="font-weight:600">${vname(s.vendorId)}</td>
-    <td><span class="bdg bdg-internal">Internal</span></td>
-    <td class="num">${n(s.intCooked)+n(s.intRaw)}</td>
-    <td style="font-size:12px;color:var(--ctxt3)">${s.notes||'—'}</td>
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td style="font-weight:600">${r.vendor}</td>
+    <td><span class="bdg bdg-internal">${r.type}</span></td>
+    <td class="num">${r.qty}</td>
+    <td style="font-size:12px;color:var(--ctxt3)">${r.notes}</td>
   </tr>`).join('');
 }
 
 function renderDashCreditTable(){
   const tb=document.getElementById('dash-credit-table');
   if(!tb)return;
-  const rows=S.submissions.filter(s=>n(s.credCooked)+n(s.credRaw)>0);
+  const rows=[];
+  S.submissions.forEach(s=>{
+    if(n(s.credCooked)>0) rows.push({vendor:vname(s.vendorId),type:'Cooked',qty:n(s.credCooked),notes:s.credCookedNotes||s.notes||'—'});
+    if(n(s.credRaw)>0)    rows.push({vendor:vname(s.vendorId),type:'Raw',qty:n(s.credRaw),notes:s.credRawNotes||s.notes||'—'});
+  });
   if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-state" style="padding:16px"><div class="ei">○</div>None recorded</td></tr>';return;}
-  tb.innerHTML=rows.map(s=>`<tr>
-    <td style="font-weight:600">${vname(s.vendorId)}</td>
-    <td><span class="bdg bdg-credit">Credit</span></td>
-    <td class="num">${n(s.credCooked)+n(s.credRaw)}</td>
-    <td style="font-size:12px;color:var(--ctxt3)">${s.notes||'—'}</td>
-  </tr>`).join('');
-}
-
-function renderTopVendors(){
-  const el=document.getElementById('top-vendors');
-  if(!el)return;
-  const sorted=[...S.vendors]
-    .filter(v=>n(getSub(v.id)?.soldCooked)+n(getSub(v.id)?.soldRaw)>0)
-    .sort((a,b)=>{
-      const sa=(getSub(a.id)?n(getSub(a.id).soldCooked)+n(getSub(a.id).soldRaw):0);
-      const sb=(getSub(b.id)?n(getSub(b.id).soldCooked)+n(getSub(b.id).soldRaw):0);
-      return sb-sa;
-    }).slice(0,7);
-  if(!sorted.length){el.innerHTML='<p style="color:var(--ctxt3);font-size:13px;padding-top:12px">No sold reports yet</p>';return;}
-  const max=Math.max(...sorted.map(v=>n(getSub(v.id)?.soldCooked)+n(getSub(v.id)?.soldRaw)))||1;
-  el.innerHTML=sorted.map(v=>{
-    const total=n(getSub(v.id)?.soldCooked)+n(getSub(v.id)?.soldRaw);
-    const pct=Math.round((total/max)*100);
-    return `<div class="tv-bar">
-      <div class="tv-bar-head"><span class="tv-bar-name">${v.name}</span><span class="tv-bar-val">${total}</span></div>
-      <div class="tv-bar-track"><div class="tv-bar-fill" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-}
-
-function renderChart(){
-  const el=document.getElementById('vchart');
-  if(!el)return;
-  const vendors=S.vendors.filter(v=>vendorDist(v.id)>0).slice(0,10);
-  if(!vendors.length){if(vchart){vchart.destroy();vchart=null;}return;}
-  const labels=vendors.map(v=>v.name.length>12?v.name.slice(0,12)+'…':v.name);
-  const dDist=vendors.map(v=>vendorDist(v.id));
-  const dSoldC=vendors.map(v=>getSub(v.id)?n(getSub(v.id).soldCooked):0);
-  const dSoldR=vendors.map(v=>getSub(v.id)?n(getSub(v.id).soldRaw):0);
-  const dRemC=vendors.map(v=>getSub(v.id)?n(getSub(v.id).remCooked):0);
-  const dRemR=vendors.map(v=>getSub(v.id)?n(getSub(v.id).remRaw):0);
-  if(vchart){vchart.destroy();vchart=null;}
-  vchart=new Chart(el,{
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'Distributed',data:dDist,backgroundColor:'rgba(216,90,48,0.18)',borderColor:'#D85A30',borderWidth:2,borderRadius:4},
-        {label:'Sold (Cooked)',data:dSoldC,backgroundColor:'rgba(29,158,117,0.85)',borderColor:'#0F6E56',borderWidth:1,borderRadius:4},
-        {label:'Sold (Raw)',data:dSoldR,backgroundColor:'rgba(29,158,117,0.4)',borderColor:'#1D9E75',borderWidth:1,borderRadius:4},
-        {label:'Rem. Cooked',data:dRemC,backgroundColor:'rgba(55,138,221,0.7)',borderColor:'#185FA5',borderWidth:1,borderRadius:4},
-        {label:'Rem. Raw',data:dRemR,backgroundColor:'rgba(239,159,39,0.7)',borderColor:'#BA7517',borderWidth:1,borderRadius:4},
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{family:'Instrument Sans',size:11},boxWidth:11,padding:10}}},
-      scales:{
-        x:{grid:{display:false},ticks:{font:{family:'Instrument Sans',size:11}}},
-        y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Instrument Sans',size:11}}}
-      }
-    }
-  });
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  REFRESH ALL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function refreshAll(){
-  refreshSelects();
-  renderBalanceTable();
-  renderVendorTable();
-  renderDistTable();
-  renderSubTable();
-  renderAdjTable();
-  renderLedger();
-  renderMissing();
-  refreshDashboard();
-  updateSubVendorInfo();
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  EXPORT / IMPORT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function exportDay(){
-  const today=new Date().toISOString().split('T')[0];
-  const payload={
-    exportDate:today,
-    exportTime:new Date().toLocaleString('en-PH'),
-    version:2,
-    state:JSON.parse(JSON.stringify(S)),
-    summary:{
-      totalBalance:totalBalance(),
-      totalDistributed:totalDist(),
-      totalSold:totalSold(),
-      totalSoldCooked:totalSoldCooked(),
-      totalSoldRaw:totalSoldRaw(),
-      totalRemCooked:totalRemCooked(),
-      totalRemRaw:totalRemRaw(),
-      totalInternal:totalInternal(),
-      totalCredits:totalCredits(),
-      warehouseRemaining:warehouseAvail(),
-      vendorCount:S.vendors.filter(v=>v.active).length
-    }
-  };
-  const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);
-  a.download=`tacotrack-${today}.json`;
-  a.click();
-  toast('End-of-day export downloaded!','ok');
-}
-
-function showImportModal(){document.getElementById('import-modal').classList.add('show');}
-function closeModal(){document.getElementById('import-modal').classList.remove('show');}
-
-function triggerImport(mode){
-  importMode=mode;
-  // Close modal visually but keep importMode intact — file input fires after modal closes
-  closeModal();
-  // Small delay so modal close doesn't interfere with file dialog on some browsers
-  setTimeout(()=>{ document.getElementById('import-file').click(); }, 80);
-}
-
-function handleImport(event){
-  const file=event.target.files[0];
-  if(!file){event.target.value='';return;}
-  const reader=new FileReader();
-  reader.onload=(e)=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      if(!data.state){toast('Invalid TacoTrack export file.','err');event.target.value='';return;}
-      const mode=importMode;
-      importMode=null;
-      if(mode==='view'){
-        S=JSON.parse(JSON.stringify(data.state));
-        toast(`Viewing snapshot from ${data.exportDate}. Full data loaded.`,'ok');
-        refreshAll();
-        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-        document.getElementById('page-dashboard').classList.add('active');
-        document.querySelectorAll('.sb-nav a').forEach(a=>a.classList.remove('active'));
-        document.querySelector('.sb-nav a').classList.add('active');
-        document.getElementById('topbar-title').textContent='Dashboard';
-      } else if(mode==='setup'){
-        S={vendors:[],balance:[],distributions:[],submissions:[],adjustments:[],ledger:[]};
-        S.vendors=(data.state.vendors||[]).map(v=>({...v,active:true}));
-        if(data.summary&&data.summary.totalRemCooked>0){
-          S.balance.push({id:uid(),source:'remaining_cooked',qty:data.summary.totalRemCooked,notes:`Carry-over from ${data.exportDate}`});
-        }
-        if(data.summary&&data.summary.totalRemRaw>0){
-          S.balance.push({id:uid(),source:'remaining_raw',qty:data.summary.totalRemRaw,notes:`Vendor remaining raw from ${data.exportDate}`});
-        }
-        if(data.summary&&data.summary.warehouseRemaining>0){
-          S.balance.push({id:uid(),source:'remaining_raw',qty:data.summary.warehouseRemaining,notes:`Warehouse carry-over from ${data.exportDate}`});
-        }
-        toast(`Setup from ${data.exportDate}: ${S.vendors.length} vendors + ${totalBalance()} tacos loaded.`,'ok');
-        refreshAll();
-      } else {
-        toast('Import mode unclear. Please try again.','err');
-      }
-    }catch(err){
-      toast('Failed to parse file. Must be a valid TacoTrack JSON.','err');
-    }
-    event.target.value='';
-  };
-  reader.readAsText(file);
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  EVENTS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-document.addEventListener('change',function(e){
-  if(e.target.id==='sub-vendor') updateSubVendorInfo();
-  if(e.target.id==='dist-vendor'||e.target.id==='dist-qty-cooked'||e.target.id==='dist-qty-raw'){
-    const da=document.getElementById('dist-avail-show');
-    if(da)da.textContent=warehouseAvail().toLocaleString();
-    const tp=document.getElementById('dist-total-preview');
-    if(tp)tp.textContent=n(document.getElementById('dist-qty-cooked')?.value)+n(document.getElementById('dist-qty-raw')?.value);
-  }
-});
-document.addEventListener('input',function(e){
-  if(e.target.id==='dist-qty-cooked'||e.target.id==='dist-qty-raw'){
-    const tp=document.getElementById('dist-total-preview');
-    if(tp)tp.textContent=n(document.getElementById('dist-qty-cooked').value)+n(document.getElementById('dist-qty-raw').value);
-  }
-});
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TacoTrack</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --c0:#1a1208; --c1:#2d1f0a; --c2:#D85A30; --c3:#f7f3ec;
-  --c4:#EF9F27; --c5:#1D9E75; --c6:#fff8f0;
-  --csurface:#fffcf7; --ccard:#ffffff;
-  --cborder:rgba(26,18,8,0.09); --cborder2:rgba(26,18,8,0.16);
-  --ctxt:#1a1208; --ctxt2:#5a4a30; --ctxt3:#9c8060;
-  --r:12px; --rs:7px;
-  --sidebar-w:220px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Instrument Sans',sans-serif;background:var(--c3);color:var(--ctxt);min-height:100vh;overflow-x:hidden;}
-h1,h2,h3,h4,.hf{font-family:'Bricolage Grotesque',sans-serif;}
-
-/* ── SIDEBAR ── */
-#sb{
-  width:var(--sidebar-w);position:fixed;left:0;top:0;bottom:0;z-index:200;
-  background:var(--c0);display:flex;flex-direction:column;overflow:hidden;
-}
-.sb-header{padding:22px 18px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
-.sb-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.3px;display:flex;align-items:center;gap:8px;}
-.sb-logo .taco-icon{width:30px;height:30px;background:var(--c2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.sb-date{font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;font-weight:400;}
-.sb-section{padding:14px 12px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.22);font-weight:600;}
-.sb-nav{flex:1;overflow-y:auto;padding-bottom:8px;}
-.sb-nav a{
-  display:flex;align-items:center;gap:9px;margin:1px 8px;padding:9px 10px;
-  border-radius:var(--rs);text-decoration:none;color:rgba(255,255,255,0.5);
-  font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;
-}
-.sb-nav a:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
-.sb-nav a.active{background:var(--c2);color:#fff;}
-.sb-nav a .ni{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:.85;flex-shrink:0;}
-.sb-nav a.active .ni{opacity:1;}
-.sb-bottom{padding:12px 10px;border-top:1px solid rgba(255,255,255,0.07);}
-.sb-export{
-  width:100%;background:rgba(216,90,48,0.15);border:1px solid rgba(216,90,48,0.3);
-  border-radius:var(--rs);color:var(--c2);font-family:'Bricolage Grotesque',sans-serif;
-  font-size:12px;font-weight:700;padding:9px 10px;cursor:pointer;
-  transition:all .15s;letter-spacing:0.2px;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.sb-export:hover{background:var(--c2);color:#fff;border-color:var(--c2);}
-
-/* ── MAIN ── */
-#main{margin-left:var(--sidebar-w);min-height:100vh;}
-.topbar{
-  background:var(--csurface);border-bottom:1px solid var(--cborder);
-  padding:0 28px;height:54px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:100;
-}
-.topbar-title{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:var(--ctxt);}
-.topbar-badge{
-  background:var(--c6);border:1px solid var(--cborder2);border-radius:20px;
-  padding:4px 12px;font-size:11px;font-weight:600;color:var(--ctxt2);
-}
-.content{padding:24px 28px;}
-.page{display:none;}.page.active{display:block;}
-
-/* ── CARDS ── */
-.card-tt{background:var(--ccard);border-radius:var(--r);border:1px solid var(--cborder);padding:18px 20px;}
-.card-tt.accent-orange{border-top:3px solid var(--c2);}
-.card-tt.accent-green{border-top:3px solid var(--c5);}
-.card-tt.accent-gold{border-top:3px solid var(--c4);}
-
-/* ── WIDGETS ── */
-.widget-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-@media(max-width:1100px){.widget-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:700px){.widget-grid{grid-template-columns:1fr;}}
-.widget{background:var(--ccard);border:1px solid var(--cborder);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;}
-.widget::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.widget.w-orange::before{background:var(--c2);}
-.widget.w-green::before{background:var(--c5);}
-.widget.w-gold::before{background:var(--c4);}
-.widget.w-blue::before{background:#378ADD;}
-.widget.w-purple::before{background:#7F77DD;}
-.widget-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ctxt3);font-weight:600;margin-bottom:8px;}
-.widget-val{font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800;line-height:1;color:var(--ctxt);margin-bottom:6px;}
-.widget.w-orange .widget-val{color:var(--c2);}
-.widget.w-green .widget-val{color:var(--c5);}
-.widget.w-gold .widget-val{color:#b06a10;}
-.widget-subs{border-top:1px solid var(--cborder);padding-top:8px;margin-top:8px;}
-.wsub{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:2px 0;}
-.wsub .wsk{color:var(--ctxt3);}
-.wsub .wsv{font-weight:600;color:var(--ctxt2);}
-
-/* ── TABLE ── */
-.tt-table{width:100%;border-collapse:collapse;font-size:13px;}
-.tt-table th{background:var(--c3);font-family:'Bricolage Grotesque',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ctxt3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--cborder2);font-weight:700;}
-.tt-table td{padding:10px 12px;border-bottom:1px solid var(--cborder);vertical-align:middle;}
-.tt-table tr:last-child td{border-bottom:none;}
-.tt-table tr:hover td{background:rgba(26,18,8,0.02);}
-.tt-table td.num{text-align:right;font-weight:600;font-family:'Bricolage Grotesque',sans-serif;}
-.tt-table th.num{text-align:right;}
-
-/* ── SECTION TITLE ── */
-.sec-title{font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--ctxt2);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--cborder);text-transform:uppercase;letter-spacing:0.5px;}
-.page-title{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:var(--ctxt);letter-spacing:-0.5px;}
-.page-sub{font-size:13px;color:var(--ctxt3);margin-top:3px;margin-bottom:20px;}
-
-/* ── FORMS ── */
-.form-label{font-size:12px;font-weight:600;color:var(--ctxt2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
-.form-control,.form-select{
-  border:1px solid var(--cborder2);border-radius:var(--rs);
-  font-size:14px;padding:8px 11px;color:var(--ctxt);
-  background:var(--ccard);font-family:'Instrument Sans',sans-serif;
-  transition:border .15s,box-shadow .15s;
-}
-.form-control:focus,.form-select:focus{border-color:var(--c2);box-shadow:0 0 0 3px rgba(216,90,48,0.12);outline:none;}
-.form-control::placeholder{color:var(--ctxt3);}
-.input-group-text{background:var(--c3);border-color:var(--cborder2);font-size:13px;color:var(--ctxt3);}
-
-/* ── BUTTONS ── */
-.btn-tt{border:none;border-radius:var(--rs);padding:9px 18px;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:0.2px;}
-.btn-primary{background:var(--c2);color:#fff;}
-.btn-primary:hover{background:#c04a22;}
-.btn-secondary{background:transparent;color:var(--ctxt2);border:1px solid var(--cborder2);}
-.btn-secondary:hover{background:var(--c3);border-color:var(--ctxt3);}
-.btn-sm-del{background:#fff0f0;color:#a32d2d;border:1px solid #f09595;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Instrument Sans',sans-serif;}
-.btn-sm-del:hover{background:#f7c1c1;}
-.btn-sm-act{background:#f0f8f4;color:#085041;border:1px solid #5dcaa5;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Instrument Sans',sans-serif;}
-.btn-sm-act:hover{background:#9fe1cb;}
-.btn-sm-warn{background:#fff8ed;color:#7a4e0a;border:1px solid var(--c4);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Instrument Sans',sans-serif;}
-
-/* ── BADGES ── */
-.bdg{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-.bdg-raw{background:#fff8ed;color:#7a4e0a;border:1px solid #f5c87a;}
-.bdg-cooked{background:#e8f8f2;color:#085041;border:1px solid #5dcaa5;}
-.bdg-sold{background:#e8f0f8;color:#0C447C;border:1px solid #85B7EB;}
-.bdg-credit{background:#f5f0fe;color:#3C3489;border:1px solid #AFA9EC;}
-.bdg-internal{background:#fff0f6;color:#72243E;border:1px solid #ED93B1;}
-.bdg-prod{background:#fff3ee;color:#712B13;border:1px solid var(--c2);}
-
-/* ── VENDOR INFO BOX ── */
-.vendor-info-box{
-  background:var(--c3);border:1px solid var(--cborder2);border-radius:var(--rs);
-  padding:10px 14px;margin-bottom:14px;display:none;
-}
-.vendor-info-box.show{display:block;}
-.vib-row{display:flex;gap:20px;flex-wrap:wrap;}
-.vib-item{font-size:12px;}
-.vib-item .vib-lbl{color:var(--ctxt3);font-size:10px;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;}
-.vib-item .vib-val{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:var(--ctxt);}
-
-/* ── TOAST ── */
-#toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
-.toast-item{
-  background:var(--c0);color:#fff;padding:11px 16px;
-  border-radius:var(--rs);font-size:13px;
-  animation:toastin .2s ease;box-shadow:0 4px 16px rgba(0,0,0,0.25);
-  max-width:300px;
-}
-.toast-item.ok{background:#085041;}
-.toast-item.err{background:#791F1F;}
-@keyframes toastin{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-
-/* ── CHART ── */
-#vchart-wrap{height:260px;position:relative;}
-
-/* ── TOP VENDOR BARS ── */
-.tv-bar{margin-bottom:9px;}
-.tv-bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
-.tv-bar-name{font-weight:600;color:var(--ctxt);}
-.tv-bar-val{color:var(--ctxt3);}
-.tv-bar-track{height:7px;background:var(--c3);border-radius:99px;overflow:hidden;}
-.tv-bar-fill{height:100%;background:var(--c2);border-radius:99px;transition:width .4s ease;}
-
-/* ── IMPORT MODAL ── */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:center;justify-content:center;}
-.modal-bg.show{display:flex;}
-.modal-box{background:#fff;border-radius:var(--r);padding:28px;width:480px;max-width:94vw;box-shadow:0 24px 60px rgba(0,0,0,0.18);}
-.modal-box h3{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;margin-bottom:6px;}
-.modal-box p{font-size:13px;color:var(--ctxt2);margin-bottom:20px;}
-.import-choice{
-  border:1.5px solid var(--cborder2);border-radius:var(--rs);padding:16px;
-  cursor:pointer;transition:all .15s;margin-bottom:10px;
-}
-.import-choice:hover{border-color:var(--c2);background:var(--c6);}
-.import-choice h4{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
-.import-choice p{font-size:12px;color:var(--ctxt3);margin:0;}
-
-/* ── MISC ── */
-.divider{height:1px;background:var(--cborder);margin:16px 0;}
-.empty-state{text-align:center;padding:30px;color:var(--ctxt3);font-size:13px;}
-.empty-state .ei{font-size:28px;margin-bottom:8px;}
-.note-row{background:var(--c3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--ctxt2);margin-bottom:14px;border-left:3px solid var(--c2);}
-.note-row strong{color:var(--c2);}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-@media(max-width:600px){.two-col,.three-col{grid-template-columns:1fr;}}
-    a:not([href]):not([class]), a:not([href]):not([class]):hover {
-  color: white;
-}
-</style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div id="sb">
-  <div class="sb-header">
-    <div class="sb-logo"><div class="taco-icon">🌮</div>TacoTrack</div>
-    <div class="sb-date" id="sb-date">Loading...</div>
-  </div>
-  <div class="sb-nav">
-    <div class="sb-section">Overview</div>
-    <a class="active" onclick="nav('dashboard',this)"><span class="ni">◈</span>Dashboard</a>
-
-    <div class="sb-section">Inventory</div>
-    <a onclick="nav('balance',this)"><span class="ni">⊞</span>Initial Balance</a>
-    <a onclick="nav('distribution',this)"><span class="ni">⬡</span>Distribute</a>
-    <a onclick="nav('submission',this)"><span class="ni">✦</span>End-of-Day Report</a>
-
-    <div class="sb-section">Setup</div>
-    <a onclick="nav('vendors',this)"><span class="ni">⬟</span>Vendor List</a>
-    <a onclick="nav('adjustments',this)"><span class="ni">◎</span>Adjustments</a>
-
-    <div class="sb-section">Ledger</div>
-    <a onclick="nav('ledger',this)"><span class="ni">≡</span>Full Ledger</a>
-    <a onclick="nav('missing',this)"><span class="ni">△</span>Missing Report</a>
-
-    <div class="sb-section">Data</div>
-    <a onclick="showImportModal()"><span class="ni">⬆</span>Import File</a>
-  </div>
-  <div class="sb-bottom">
-    <button class="sb-export" onclick="exportDay()">⬇ Export End of Day</button>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div id="main">
-  <div class="topbar">
-    <div class="topbar-title" id="topbar-title">Dashboard</div>
-    <div class="topbar-badge" id="topbar-date">—</div>
-  </div>
-  <div class="content">
-
-    <!-- ============ DASHBOARD ============ -->
-    <div class="page active" id="page-dashboard">
-
-      <!-- WIDGETS ROW 1: 3 cols -->
-      <div class="widget-grid" id="dash-widgets">
-        <!-- W1: Initial Balance -->
-        <div class="widget w-orange">
-          <div class="widget-lbl">Initial Taco Balance</div>
-          <div class="widget-val" id="w-balance">0</div>
-          <div class="widget-subs" id="w-balance-subs"></div>
-        </div>
-        <!-- W2: Distributed -->
-        <div class="widget w-gold">
-          <div class="widget-lbl">Distributed</div>
-          <div class="widget-val" id="w-dist">0</div>
-          <div class="widget-subs" id="w-dist-subs"></div>
-        </div>
-        <!-- W3: Sold -->
-        <div class="widget w-green">
-          <div class="widget-lbl">Sold</div>
-          <div class="widget-val" id="w-sold">0</div>
-          <div class="widget-subs" id="w-sold-subs"></div>
-        </div>
-        <!-- W4: Remaining -->
-        <div class="widget w-blue">
-          <div class="widget-lbl">Remaining (Overall)</div>
-          <div class="widget-val" id="w-rem">0</div>
-          <div class="widget-subs" id="w-rem-subs"></div>
-        </div>
-        <!-- W5: Active Vendors -->
-        <div class="widget w-purple">
-          <div class="widget-lbl">Active Vendors</div>
-          <div class="widget-val" id="w-vcount">0</div>
-          <div class="widget-subs" id="w-vcount-subs"></div>
-        </div>
-        <!-- W6: Internal Use -->
-        <div class="widget">
-          <div class="widget-lbl">Internal Use</div>
-          <div class="widget-val" id="w-internal" style="color:var(--ctxt2)">0</div>
-          <div class="widget-subs" id="w-internal-subs"></div>
-        </div>
-      </div>
-
-      <!-- CHARTS + TOP VENDOR -->
-      <div class="row g-3 mb-3">
-        <div class="col-lg-7">
-          <div class="card-tt">
-            <div class="sec-title">Vendor Performance</div>
-            <div id="vchart-wrap"><canvas id="vchart"></canvas></div>
-          </div>
-        </div>
-        <div class="col-lg-5">
-          <div class="card-tt h-100">
-            <div class="sec-title">Top Vendors by Sold</div>
-            <div id="top-vendors"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- INTERNAL USE + CREDIT TABLES -->
-      <div class="row g-3">
-        <div class="col-lg-6">
-          <div class="card-tt">
-            <div class="sec-title">Internal Use Records</div>
-            <table class="tt-table">
-              <thead><tr><th>Vendor</th><th>Type</th><th class="num">Qty</th><th>Reason/Notes</th></tr></thead>
-              <tbody id="dash-internal-table"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card-tt">
-            <div class="sec-title">Credit Pending</div>
-            <table class="tt-table">
-              <thead><tr><th>Vendor</th><th>Type</th><th class="num">Qty</th><th>Reason/Notes</th></tr></thead>
-              <tbody id="dash-credit-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /dashboard -->
-
-    <!-- ============ INITIAL BALANCE ============ -->
-    <div class="page" id="page-balance">
-      <div class="page-title">Initial Balance Entry</div>
-      <div class="page-sub">Set today's starting taco stock — from production batch or carryover remaining</div>
-      <div class="row g-3">
-        <div class="col-lg-5">
-          <div class="card-tt">
-            <div class="sec-title">Add Balance Entry</div>
-            <div class="mb-3">
-              <label class="form-label">Balance From</label>
-              <select class="form-select" id="bal-source" onchange="toggleBalFields()">
-                <option value="production">Production (fresh batch)</option>
-                <option value="remaining">Remaining (previous day)</option>
-              </select>
-            </div>
-            <!-- Production: raw only -->
-            <div id="bal-fields-production">
-              <div class="mb-3">
-                <label class="form-label">Quantity (Raw)</label>
-                <input type="number" class="form-control" id="bal-qty-raw-prod" placeholder="e.g. 300" min="1">
-              </div>
-            </div>
-            <!-- Remaining: cooked + raw -->
-            <div id="bal-fields-remaining" style="display:none">
-              <div class="two-col mb-3">
-                <div>
-                  <label class="form-label">Cooked</label>
-                  <input type="number" class="form-control" id="bal-qty-cooked-rem" placeholder="0" min="0" value="0">
-                </div>
-                <div>
-                  <label class="form-label">Raw</label>
-                  <input type="number" class="form-control" id="bal-qty-raw-rem" placeholder="0" min="0" value="0">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Notes (optional)</label>
-              <input type="text" class="form-control" id="bal-notes" placeholder="e.g. Morning batch A">
-            </div>
-            <button class="btn-tt btn-primary" onclick="addBalance()">+ Add Balance</button>
-          </div>
-        </div>
-        <div class="col-lg-7">
-          <div class="card-tt">
-            <div class="sec-title">Balance Entries</div>
-            <table class="tt-table">
-              <thead><tr><th>Source</th><th class="num">Cooked</th><th class="num">Raw</th><th class="num">Total</th><th>Notes</th><th></th></tr></thead>
-              <tbody id="balance-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div><!-- /balance -->
-
-    <!-- ============ DISTRIBUTION ============ -->
-    <div class="page" id="page-distribution">
-      <div class="page-title">Distribute Tacos</div>
-      <div class="page-sub">Assign cooked and/or raw tacos to vendors. Stock deducted from warehouse.</div>
-      <div class="row g-3">
-        <div class="col-lg-5">
-          <div class="card-tt">
-            <div class="sec-title">New Distribution</div>
-            <div class="note-row">Available warehouse stock: <strong id="dist-avail-show">0</strong> tacos</div>
-            <div class="mb-3">
-              <label class="form-label">Vendor</label>
-              <select class="form-select" id="dist-vendor" style="width:100%"></select>
-            </div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Qty — Cooked</label>
-                <input type="number" class="form-control" id="dist-qty-cooked" placeholder="0" min="0" value="0">
-              </div>
-              <div>
-                <label class="form-label">Qty — Raw</label>
-                <input type="number" class="form-control" id="dist-qty-raw" placeholder="0" min="0" value="0">
-              </div>
-            </div>
-            <div style="font-size:12px;color:var(--ctxt3);margin-bottom:12px">Total to distribute: <strong id="dist-total-preview" style="color:var(--ctxt2)">0</strong></div>
-            <button class="btn-tt btn-primary" onclick="addDistribution()">Distribute →</button>
-          </div>
-        </div>
-        <div class="col-lg-7">
-          <div class="card-tt">
-            <div class="sec-title">Distribution Log</div>
-            <table class="tt-table">
-              <thead><tr><th>Vendor</th><th class="num">Cooked</th><th class="num">Raw</th><th class="num">Total</th><th class="num">Sold</th><th class="num">Remaining</th><th>Status</th></tr></thead>
-              <tbody id="dist-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div><!-- /distribution -->
-
-    <!-- ============ END OF DAY SUBMISSION ============ -->
-    <div class="page" id="page-submission">
-      <div class="page-title">End-of-Day Report</div>
-      <div class="page-sub">Submit daily totals per vendor: sold, remaining, internal use and credits</div>
-      <div class="row g-3">
-        <div class="col-lg-5">
-          <div class="card-tt">
-            <div class="sec-title">Select Vendor</div>
-            <div class="mb-3">
-              <label class="form-label">Vendor</label>
-              <select class="form-select" id="sub-vendor" style="width:100%"></select>
-            </div>
-            <!-- Vendor info box -->
-            <div class="vendor-info-box" id="sub-vib">
-              <div class="vib-row" id="sub-vib-content"></div>
-            </div>
-            <div class="divider"></div>
-            <div class="sec-title" style="margin-top:4px">Sold</div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Sold (Cooked)</label>
-                <input type="number" class="form-control" id="sub-sold-cooked" placeholder="0" min="0" value="0">
-              </div>
-              <div>
-                <label class="form-label">Sold (Raw)</label>
-                <input type="number" class="form-control" id="sub-sold-raw" placeholder="0" min="0" value="0">
-              </div>
-            </div>
-            <div class="sec-title">Remaining</div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Remaining (Cooked)</label>
-                <input type="number" class="form-control" id="sub-rem-cooked" placeholder="0" min="0" value="0">
-              </div>
-              <div>
-                <label class="form-label">Remaining (Raw)</label>
-                <input type="number" class="form-control" id="sub-rem-raw" placeholder="0" min="0" value="0">
-              </div>
-            </div>
-            <div class="sec-title">Internal Use <span style="font-size:10px;color:var(--ctxt3)">(deducted, free)</span></div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Internal (Cooked)</label>
-                <input type="number" class="form-control" id="sub-int-cooked" placeholder="0" min="0" value="0">
-              </div>
-              <div>
-                <label class="form-label">Internal (Raw)</label>
-                <input type="number" class="form-control" id="sub-int-raw" placeholder="0" min="0" value="0">
-              </div>
-            </div>
-            <div class="sec-title">Credit <span style="font-size:10px;color:var(--ctxt3)">(deducted, pay later)</span></div>
-            <div class="two-col mb-3">
-              <div>
-                <label class="form-label">Credit (Cooked)</label>
-                <input type="number" class="form-control" id="sub-cred-cooked" placeholder="0" min="0" value="0">
-              </div>
-              <div>
-                <label class="form-label">Credit (Raw)</label>
-                <input type="number" class="form-control" id="sub-cred-raw" placeholder="0" min="0" value="0">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Notes (optional)</label>
-              <input type="text" class="form-control" id="sub-notes" placeholder="Any remarks...">
-            </div>
-            <div id="sub-validation" class="note-row" style="display:none"></div>
-            <button class="btn-tt btn-primary" onclick="submitReport()">Submit Report</button>
-          </div>
-        </div>
-        <div class="col-lg-7">
-          <div class="card-tt">
-            <div class="sec-title">Submission Log</div>
-            <table class="tt-table" id="sub-log-table">
-              <thead>
-                <tr>
-                  <th>Vendor</th>
-                  <th class="num">Dist.</th>
-                  <th class="num">Sold C</th>
-                  <th class="num">Sold R</th>
-                  <th class="num">Rem C</th>
-                  <th class="num">Rem R</th>
-                  <th class="num">Int.</th>
-                  <th class="num">Cred.</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="sub-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div><!-- /submission -->
-
-    <!-- ============ VENDORS ============ -->
-    <div class="page" id="page-vendors">
-      <div class="page-title">Vendor List</div>
-      <div class="page-sub">Register vendors before distribution</div>
-      <div class="row g-3">
-        <div class="col-lg-4">
-          <div class="card-tt">
-            <div class="sec-title">Add Vendor</div>
-            <div class="mb-3">
-              <label class="form-label">Vendor Name</label>
-              <input type="text" class="form-control" id="v-name" placeholder="e.g. Mang Dante's Spot">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Location / Area</label>
-              <input type="text" class="form-control" id="v-loc" placeholder="e.g. Bankerohan Market">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Contact (optional)</label>
-              <input type="text" class="form-control" id="v-contact" placeholder="Phone or nickname">
-            </div>
-            <button class="btn-tt btn-primary" onclick="addVendor()">+ Add Vendor</button>
-          </div>
-        </div>
-        <div class="col-lg-8">
-          <div class="card-tt">
-            <div class="sec-title">Registered Vendors</div>
-            <table class="tt-table">
-              <thead><tr><th>#</th><th>Vendor</th><th>Location</th><th>Contact</th><th>Status</th><th></th></tr></thead>
-              <tbody id="vendor-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ ADJUSTMENTS ============ -->
-    <div class="page" id="page-adjustments">
-      <div class="page-title">Adjustments</div>
-      <div class="page-sub">Missing tacos and other stock corrections</div>
-      <div class="row g-3">
-        <div class="col-lg-5">
-          <div class="card-tt">
-            <div class="sec-title">New Adjustment</div>
-            <div class="mb-3">
-              <label class="form-label">Type</label>
-              <select class="form-select" id="adj-type">
-                <option value="missing">Missing</option>
-                <option value="damage">Damage (warehouse)</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Vendor (if applicable)</label>
-              <select class="form-select" id="adj-vendor" style="width:100%"></select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Quantity</label>
-              <input type="number" class="form-control" id="adj-qty" placeholder="e.g. 5" min="1">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Notes</label>
-              <input type="text" class="form-control" id="adj-notes" placeholder="Describe what happened...">
-            </div>
-            <button class="btn-tt btn-primary" onclick="addAdjustment()">+ Record</button>
-          </div>
-        </div>
-        <div class="col-lg-7">
-          <div class="card-tt">
-            <div class="sec-title">Adjustment Log</div>
-            <table class="tt-table">
-              <thead><tr><th>Type</th><th>Vendor</th><th class="num">Qty</th><th>Notes</th><th></th></tr></thead>
-              <tbody id="adj-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ LEDGER ============ -->
-    <div class="page" id="page-ledger">
-      <div class="page-title">Full Ledger</div>
-      <div class="page-sub">All taco movements recorded today</div>
-      <div class="row g-3 mb-3">
-        <div class="col-6 col-sm-3"><div class="widget w-orange" style="padding:12px 14px"><div class="widget-lbl">Balance</div><div class="widget-val" style="font-size:22px" id="led-bal">0</div></div></div>
-        <div class="col-6 col-sm-3"><div class="widget w-gold" style="padding:12px 14px"><div class="widget-lbl">Distributed</div><div class="widget-val" style="font-size:22px" id="led-dist">0</div></div></div>
-        <div class="col-6 col-sm-3"><div class="widget w-green" style="padding:12px 14px"><div class="widget-lbl">Sold</div><div class="widget-val" style="font-size:22px" id="led-sold">0</div></div></div>
-        <div class="col-6 col-sm-3"><div class="widget" style="padding:12px 14px"><div class="widget-lbl">Adjustments</div><div class="widget-val" style="font-size:22px" id="led-adj">0</div></div></div>
-      </div>
-      <div class="card-tt">
-        <table class="tt-table">
-          <thead><tr><th>Time</th><th>Entry</th><th>Vendor</th><th class="num">Qty</th><th>Notes</th></tr></thead>
-          <tbody id="ledger-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ============ MISSING REPORT ============ -->
-    <div class="page" id="page-missing">
-      <div class="page-title">Missing Report</div>
-      <div class="page-sub">Summary of discrepancies and missing tacos</div>
-      <div class="card-tt">
-        <table class="tt-table">
-          <thead><tr><th>Vendor</th><th class="num">Distributed</th><th class="num">Sold</th><th class="num">Remaining</th><th class="num">Internal</th><th class="num">Credit</th><th class="num">Missing</th></tr></thead>
-          <tbody id="missing-table"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- IMPORT MODAL -->
-<div class="modal-bg" id="import-modal">
-  <div class="modal-box">
-    <h3>Import File</h3>
-    <p>How do you want to use this export file?</p>
-    <div class="import-choice" onclick="triggerImport('view')">
-      <h4>📊 View Dashboard Only</h4>
-      <p>Load the file to review yesterday's report without changing today's data</p>
-    </div>
-    <div class="import-choice" onclick="triggerImport('setup')">
-      <h4>⬆ Setup for Today</h4>
-      <p>Import vendors list and remaining balance as today's starting inventory</p>
-    </div>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
-    <button class="btn-tt btn-secondary mt-2" onclick="closeModal()" style="width:100%">Cancel</button>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toasts"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  STATE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let S = {
-  vendors:       [],  // {id,name,location,contact,active}
-  balance:       [],  // {id,source,qty,notes}  source: production|remaining_cooked|remaining_raw
-  distributions: [],  // {id,vendorId,qty}  qty = raw
-  submissions:   [],  // {id,vendorId,soldCooked,soldRaw,remCooked,remRaw,intCooked,intRaw,credCooked,credRaw,notes}
-  adjustments:   [],  // {id,type,vendorId,qty,notes,ts}
-  ledger:        [],  // {ts,entry,vendorId,qty,notes}
-};
-let vchart = null;
-let importMode = null;
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  INIT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-window.onload = () => {
-  const now = new Date();
-  const ds = now.toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('sb-date').textContent = ds;
-  document.getElementById('topbar-date').textContent = now.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
-  initSelect2s();
-  refreshAll();
-};
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  UTILS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const uid=()=>Math.random().toString(36).slice(2,9);
-const ts=()=>new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
-const n=(x)=>Number(x)||0;
-function toast(msg,type=''){
-  const c=document.getElementById('toasts');
-  const d=document.createElement('div');
-  d.className='toast-item '+(type==='ok'?'ok':type==='err'?'err':'');
-  d.textContent=msg; c.appendChild(d);
-  setTimeout(()=>d.remove(),3200);
-}
-function vname(id){const v=S.vendors.find(v=>v.id===id);return v?v.name:'—';}
-function pushLedger(entry,vendorId,qty,notes){S.ledger.push({ts:ts(),entry,vendorId,qty,notes});}
-function emptyRow(cols){return `<tr><td colspan="${cols}" class="empty-state"><div class="ei">○</div>No records yet</td></tr>`;}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  COMPUTED
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function totalBalance(){return S.balance.reduce((s,b)=>s+(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)),0);}
-function balBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)),0);}
-function balCookedBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+n(b.qtyCooked),0);}
-function balRawBySource(src){return S.balance.filter(b=>b.source===src).reduce((s,b)=>s+n(b.qtyRaw),0);}
-// Warehouse remaining splits: cooked pool = all carry-over cooked; raw pool = production raw + carry-over raw - distributed
-function warehouseRemCooked(){
-  return balCookedBySource('remaining')+balCookedBySource('remaining_cooked');
-}
-function warehouseRemRaw(){
-  const rawIn=balRawBySource('production')+balRawBySource('remaining')+balRawBySource('remaining_raw');
-  return Math.max(0, rawIn - totalDist());
-}
-function totalDist(){return S.distributions.reduce((s,d)=>s+d.qty,0);}
-function vendorDist(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+(n(d.qty)||n(d.qtyCooked)+n(d.qtyRaw)),0);}
-function vendorDistCooked(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+n(d.qtyCooked),0);}
-function vendorDistRaw(vid){return S.distributions.filter(d=>d.vendorId===vid).reduce((s,d)=>s+n(d.qtyRaw),0);}
-function getSub(vid){return S.submissions.find(s=>s.vendorId===vid);}
-function totalSoldCooked(){return S.submissions.reduce((s,x)=>s+n(x.soldCooked),0);}
-function totalSoldRaw(){return S.submissions.reduce((s,x)=>s+n(x.soldRaw),0);}
-function totalSold(){return totalSoldCooked()+totalSoldRaw();}
-function totalRemCooked(){return S.submissions.reduce((s,x)=>s+n(x.remCooked),0);}
-function totalRemRaw(){return S.submissions.reduce((s,x)=>s+n(x.remRaw),0);}
-function totalInternal(){return S.submissions.reduce((s,x)=>s+n(x.intCooked)+n(x.intRaw),0);}
-function totalCredits(){return S.submissions.reduce((s,x)=>s+n(x.credCooked)+n(x.credRaw),0);}
-function totalAdj(){return S.adjustments.reduce((s,a)=>s+a.qty,0);}
-function warehouseAvail(){
-  return totalBalance()-totalDist()-S.adjustments.filter(a=>a.type!=='credit').reduce((s,a)=>s+a.qty,0);
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  NAV
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const pageTitles={dashboard:'Dashboard',balance:'Initial Balance',distribution:'Distribute Tacos',submission:'End-of-Day Report',vendors:'Vendor List',adjustments:'Adjustments',ledger:'Full Ledger',missing:'Missing Report'};
-function nav(pg,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-nav a').forEach(a=>a.classList.remove('active'));
-  document.getElementById('page-'+pg).classList.add('active');
-  el.classList.add('active');
-  document.getElementById('topbar-title').textContent=pageTitles[pg]||pg;
-  refreshAll();
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  SELECT2
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function initSelect2s(){
-  ['dist-vendor','sub-vendor','adj-vendor'].forEach(id=>{
-    const el=$('#'+id);
-    if(el.length) el.select2({theme:'bootstrap-5',width:'100%',placeholder:'Select vendor',allowClear:id==='adj-vendor'});
-  });
-  $('#sub-vendor').on('change',function(){updateSubVendorInfo();});
-}
-function refreshSelects(){
-  const ids=['dist-vendor','sub-vendor','adj-vendor'];
-  ids.forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    const val=el.value;
-    const active=S.vendors.filter(v=>v.active);
-    el.innerHTML=(id==='adj-vendor'?'<option value="">— None —</option>':'');
-    active.forEach(v=>{ el.innerHTML+=`<option value="${v.id}">${v.name}</option>`; });
-    if(val && active.find(v=>v.id===val)) el.value=val;
-    try{$('#'+id).trigger('change.select2');}catch(e){}
-  });
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  BALANCE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function toggleBalFields(){
-  const src=document.getElementById('bal-source').value;
-  document.getElementById('bal-fields-production').style.display=src==='production'?'':'none';
-  document.getElementById('bal-fields-remaining').style.display=src==='remaining'?'':'none';
-}
-function addBalance(){
-  const source=document.getElementById('bal-source').value;
-  const notes=document.getElementById('bal-notes').value.trim();
-  let qtyCooked=0, qtyRaw=0;
-  if(source==='production'){
-    qtyRaw=n(document.getElementById('bal-qty-raw-prod').value);
-    if(qtyRaw<1){toast('Enter a valid raw quantity.','err');return;}
-  } else {
-    qtyCooked=n(document.getElementById('bal-qty-cooked-rem').value);
-    qtyRaw=n(document.getElementById('bal-qty-raw-rem').value);
-    if(qtyCooked<1&&qtyRaw<1){toast('Enter at least one quantity.','err');return;}
-  }
-  const total=qtyCooked+qtyRaw;
-  S.balance.push({id:uid(),source,qtyCooked,qtyRaw,qty:total,notes});
-  const lbl={production:'Production batch',remaining:'Remaining carry-over'};
-  pushLedger('Balance: '+lbl[source],'',total,notes||(source==='production'?`Raw:${qtyRaw}`:`Cooked:${qtyCooked} Raw:${qtyRaw}`));
-  // reset
-  document.getElementById('bal-qty-raw-prod').value='';
-  document.getElementById('bal-qty-cooked-rem').value=0;
-  document.getElementById('bal-qty-raw-rem').value=0;
-  document.getElementById('bal-notes').value='';
-  toast(`✓ Added ${total} tacos (${lbl[source]}).`,'ok');
-  refreshAll();
-}
-function delBalance(id){S.balance=S.balance.filter(b=>b.id!==id);refreshAll();}
-function renderBalanceTable(){
-  const tb=document.getElementById('balance-table');
-  if(!tb)return;
-  if(!S.balance.length){tb.innerHTML=emptyRow(6);return;}
-  const labels={production:'<span class="bdg bdg-prod">Production</span>',remaining:'<span class="bdg bdg-cooked">Remaining</span>',remaining_cooked:'<span class="bdg bdg-cooked">Rem. Cooked</span>',remaining_raw:'<span class="bdg bdg-raw">Rem. Raw</span>'};
-  tb.innerHTML=S.balance.map(b=>`<tr>
-    <td>${labels[b.source]||b.source}</td>
-    <td class="num">${n(b.qtyCooked).toLocaleString()}</td>
-    <td class="num">${n(b.qtyRaw).toLocaleString()}</td>
-    <td class="num"><strong>${(n(b.qty)||n(b.qtyCooked)+n(b.qtyRaw)).toLocaleString()}</strong></td>
-    <td style="color:var(--ctxt3);font-size:12px">${b.notes||'—'}</td>
-    <td><button class="btn-sm-del" onclick="delBalance('${b.id}')">✕</button></td>
-  </tr>`).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  VENDORS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function addVendor(){
-  const name=document.getElementById('v-name').value.trim();
-  const loc=document.getElementById('v-loc').value.trim();
-  const contact=document.getElementById('v-contact').value.trim();
-  if(!name){toast('Vendor name required.','err');return;}
-  if(S.vendors.find(v=>v.name.toLowerCase()===name.toLowerCase())){toast('Vendor already exists.','err');return;}
-  S.vendors.push({id:uid(),name,location:loc,contact,active:true});
-  document.getElementById('v-name').value='';
-  document.getElementById('v-loc').value='';
-  document.getElementById('v-contact').value='';
-  toast(`Vendor "${name}" added.`,'ok');
-  refreshAll();
-}
-function toggleVendor(id){const v=S.vendors.find(v=>v.id===id);if(v)v.active=!v.active;refreshAll();}
-function delVendor(id){S.vendors=S.vendors.filter(v=>v.id!==id);refreshAll();}
-function renderVendorTable(){
-  const tb=document.getElementById('vendor-table');
-  if(!tb)return;
-  if(!S.vendors.length){tb.innerHTML=emptyRow(6);return;}
-  tb.innerHTML=S.vendors.map((v,i)=>`<tr>
-    <td style="color:var(--ctxt3)">${i+1}</td>
-    <td><strong>${v.name}</strong></td>
-    <td style="font-size:12px;color:var(--ctxt2)">${v.location||'—'}</td>
-    <td style="font-size:12px;color:var(--ctxt2)">${v.contact||'—'}</td>
-    <td><span class="bdg ${v.active?'bdg-cooked':'bdg-raw'}">${v.active?'Active':'Inactive'}</span></td>
-    <td style="white-space:nowrap">
-      <button class="btn-sm-act" onclick="toggleVendor('${v.id}')">${v.active?'Deactivate':'Activate'}</button>
-      <button class="btn-sm-del ms-1" onclick="delVendor('${v.id}')">Del</button>
-    </td>
-  </tr>`).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  DISTRIBUTION
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function addDistribution(){
-  const vid=document.getElementById('dist-vendor').value;
-  const qc=n(document.getElementById('dist-qty-cooked').value);
-  const qr=n(document.getElementById('dist-qty-raw').value);
-  const total=qc+qr;
-  const avail=warehouseAvail();
-  if(!vid){toast('Select a vendor.','err');return;}
-  if(total<1){toast('Enter at least one quantity (cooked or raw).','err');return;}
-  if(total>avail){toast(`Only ${avail} tacos available in warehouse.`,'err');return;}
-  S.distributions.push({id:uid(),vendorId:vid,qtyCooked:qc,qtyRaw:qr,qty:total});
-  pushLedger('Distribution',vid,total,`Cooked:${qc} Raw:${qr} → ${vname(vid)}`);
-  document.getElementById('dist-qty-cooked').value=0;
-  document.getElementById('dist-qty-raw').value=0;
-  document.getElementById('dist-total-preview').textContent=0;
-  toast(`Distributed ${qc} cooked + ${qr} raw to ${vname(vid)}.`,'ok');
-  refreshAll();
-}
-function delDist(id){S.distributions=S.distributions.filter(d=>d.id!==id);refreshAll();}
-function renderDistTable(){
-  const tb=document.getElementById('dist-table');
-  if(!tb)return;
-  const da=document.getElementById('dist-avail-show');
-  if(da)da.textContent=warehouseAvail().toLocaleString();
-  if(!S.distributions.length){tb.innerHTML=emptyRow(7);return;}
-  // Group by vendor
-  const map={};
-  S.distributions.forEach(d=>{
-    if(!map[d.vendorId])map[d.vendorId]={cooked:0,raw:0,total:0};
-    map[d.vendorId].cooked+=n(d.qtyCooked);
-    map[d.vendorId].raw+=n(d.qtyRaw);
-    map[d.vendorId].total+=n(d.qty)||n(d.qtyCooked)+n(d.qtyRaw);
-  });
-  tb.innerHTML=Object.entries(map).map(([vid,m])=>{
-    const sub=getSub(vid);
-    const sold=(sub?n(sub.soldCooked)+n(sub.soldRaw):0);
-    const rem=(sub?n(sub.remCooked)+n(sub.remRaw):m.total-sold);
-    return `<tr>
-      <td><strong>${vname(vid)}</strong></td>
-      <td class="num"><span class="bdg bdg-cooked" style="font-size:11px">${m.cooked}</span></td>
-      <td class="num"><span class="bdg bdg-raw" style="font-size:11px">${m.raw}</span></td>
-      <td class="num">${m.total}</td>
-      <td class="num">${sold}</td>
-      <td class="num">${rem}</td>
-      <td><span class="bdg ${sub?'bdg-cooked':'bdg-raw'}">${sub?'Reported':'Pending'}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  SUBMISSION
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function updateSubVendorInfo(){
-  const vid=document.getElementById('sub-vendor').value;
-  const box=document.getElementById('sub-vib');
-  const content=document.getElementById('sub-vib-content');
-  // Always clear all inputs first
-  ['sold-cooked','sold-raw','rem-cooked','rem-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>{
-    const el=document.getElementById('sub-'+k);
-    if(el) el.value=0;
-  });
-  const notesEl=document.getElementById('sub-notes');
-  if(notesEl) notesEl.value='';
-  const valBox=document.getElementById('sub-validation');
-  if(valBox) valBox.style.display='none';
-  if(!vid){box.classList.remove('show');return;}
-  const dist=vendorDist(vid);
-  const existing=getSub(vid);
-  box.classList.add('show');
-  content.innerHTML=`
-    <div class="vib-item"><span class="vib-lbl">Total Distributed</span><span class="vib-val">${dist}</span></div>
-    <div class="vib-item"><span class="vib-lbl">Cooked</span><span class="vib-val" style="color:var(--c5)">${vendorDistCooked(vid)}</span></div>
-    <div class="vib-item"><span class="vib-lbl">Raw</span><span class="vib-val" style="color:#b06a10">${vendorDistRaw(vid)}</span></div>
-    <div class="vib-item"><span class="vib-lbl">Status</span><span class="vib-val" style="font-size:13px">${existing?'<span class="bdg bdg-cooked">Reported</span>':'<span class="bdg bdg-raw">Pending</span>'}</span></div>
-  `;
-  // If existing report, pre-fill
-  if(existing){
-    const map={'sold-cooked':'soldCooked','sold-raw':'soldRaw','rem-cooked':'remCooked','rem-raw':'remRaw','int-cooked':'intCooked','int-raw':'intRaw','cred-cooked':'credCooked','cred-raw':'credRaw'};
-    Object.entries(map).forEach(([k,mk])=>{
-      const el=document.getElementById('sub-'+k);
-      if(el) el.value=n(existing[mk])||0;
-    });
-  }
-}
-function submitReport(){
-  const vid=document.getElementById('sub-vendor').value;
-  if(!vid){toast('Select a vendor.','err');return;}
-  const dist=vendorDist(vid);
-  const vals={
-    soldCooked:n(document.getElementById('sub-sold-cooked').value),
-    soldRaw:n(document.getElementById('sub-sold-raw').value),
-    remCooked:n(document.getElementById('sub-rem-cooked').value),
-    remRaw:n(document.getElementById('sub-rem-raw').value),
-    intCooked:n(document.getElementById('sub-int-cooked').value),
-    intRaw:n(document.getElementById('sub-int-raw').value),
-    credCooked:n(document.getElementById('sub-cred-cooked').value),
-    credRaw:n(document.getElementById('sub-cred-raw').value),
-    notes:document.getElementById('sub-notes').value.trim(),
-  };
-  const total=vals.soldCooked+vals.soldRaw+vals.remCooked+vals.remRaw+vals.intCooked+vals.intRaw+vals.credCooked+vals.credRaw;
-  const valBox=document.getElementById('sub-validation');
-  if(total>dist){
-    valBox.style.display='block';
-    valBox.innerHTML=`<strong>Warning:</strong> Total entered (${total}) exceeds distributed (${dist}). Difference: ${total-dist}`;
-  } else {
-    valBox.style.display='none';
-  }
-  // Remove existing
-  S.submissions=S.submissions.filter(s=>s.vendorId!==vid);
-  S.submissions.push({id:uid(),vendorId:vid,...vals});
-  pushLedger('EOD Report',vid,vals.soldCooked+vals.soldRaw,`Sold C:${vals.soldCooked} R:${vals.soldRaw} Int:${vals.intCooked+vals.intRaw} Cred:${vals.credCooked+vals.credRaw}`);
-  // Reset fields
-  ['sold-cooked','sold-raw','rem-cooked','rem-raw','int-cooked','int-raw','cred-cooked','cred-raw'].forEach(k=>document.getElementById('sub-'+k).value=0);
-  document.getElementById('sub-notes').value='';
-  toast(`EOD report submitted for ${vname(vid)}.`,'ok');
-  refreshAll();
-}
-function delSub(id){S.submissions=S.submissions.filter(s=>s.id!==id);refreshAll();}
-function renderSubTable(){
-  const tb=document.getElementById('sub-table');
-  if(!tb)return;
-  if(!S.submissions.length){tb.innerHTML=emptyRow(9);return;}
-  tb.innerHTML=S.submissions.map(s=>`<tr>
-    <td><strong>${vname(s.vendorId)}</strong></td>
-    <td class="num">${vendorDist(s.vendorId)}</td>
-    <td class="num" style="color:var(--c5)">${n(s.soldCooked)}</td>
-    <td class="num" style="color:var(--c5)">${n(s.soldRaw)}</td>
-    <td class="num">${n(s.remCooked)}</td>
-    <td class="num">${n(s.remRaw)}</td>
-    <td class="num" style="color:#85500B">${n(s.intCooked)+n(s.intRaw)}</td>
-    <td class="num" style="color:#3C3489">${n(s.credCooked)+n(s.credRaw)}</td>
-    <td><button class="btn-sm-del" onclick="delSub('${s.id}')">✕</button></td>
-  </tr>`).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  ADJUSTMENTS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function addAdjustment(){
-  const type=document.getElementById('adj-type').value;
-  const vid=document.getElementById('adj-vendor').value;
-  const qty=n(document.getElementById('adj-qty').value);
-  const notes=document.getElementById('adj-notes').value.trim();
-  if(qty<1){toast('Enter a valid quantity.','err');return;}
-  if(!notes){toast('Notes required for adjustments.','err');return;}
-  S.adjustments.push({id:uid(),type,vendorId:vid,qty,notes,ts:ts()});
-  pushLedger('Adjustment: '+type,vid,qty,notes);
-  document.getElementById('adj-qty').value='';
-  document.getElementById('adj-notes').value='';
-  toast('Adjustment recorded.','ok');
-  refreshAll();
-}
-function delAdj(id){S.adjustments=S.adjustments.filter(a=>a.id!==id);refreshAll();}
-function renderAdjTable(){
-  const tb=document.getElementById('adj-table');
-  if(!tb)return;
-  if(!S.adjustments.length){tb.innerHTML=emptyRow(5);return;}
-  const bdg={missing:'<span class="bdg bdg-raw">Missing</span>',damage:'<span class="bdg bdg-internal">Damage</span>',other:'<span class="bdg">Other</span>'};
-  tb.innerHTML=S.adjustments.map(a=>`<tr>
-    <td>${bdg[a.type]||a.type}</td>
-    <td style="font-size:12px">${a.vendorId?vname(a.vendorId):'—'}</td>
-    <td class="num">${a.qty}</td>
-    <td style="font-size:12px;color:var(--ctxt2)">${a.notes}</td>
-    <td><button class="btn-sm-del" onclick="delAdj('${a.id}')">✕</button></td>
-  </tr>`).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  LEDGER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function renderLedger(){
-  ['led-bal','led-dist','led-sold','led-adj'].forEach((id,i)=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent=[totalBalance(),totalDist(),totalSold(),totalAdj()][i].toLocaleString();
-  });
-  const tb=document.getElementById('ledger-body');
-  if(!tb)return;
-  if(!S.ledger.length){tb.innerHTML=emptyRow(5);return;}
-  tb.innerHTML=[...S.ledger].reverse().map(l=>`<tr>
-    <td style="font-size:11px;color:var(--ctxt3)">${l.ts}</td>
-    <td style="font-weight:600;font-size:12px">${l.entry}</td>
-    <td style="font-size:12px">${l.vendorId?vname(l.vendorId):'—'}</td>
-    <td class="num" style="color:var(--c2)">${l.qty}</td>
-    <td style="font-size:12px;color:var(--ctxt2)">${l.notes||'—'}</td>
-  </tr>`).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  MISSING REPORT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function renderMissing(){
-  const tb=document.getElementById('missing-table');
-  if(!tb)return;
-  const vendors=S.vendors.filter(v=>vendorDist(v.id)>0);
-  if(!vendors.length){tb.innerHTML=emptyRow(7);return;}
-  tb.innerHTML=vendors.map(v=>{
-    const dist=vendorDist(v.id);
-    const sub=getSub(v.id);
-    const sold=sub?n(sub.soldCooked)+n(sub.soldRaw):0;
-    const rem=sub?n(sub.remCooked)+n(sub.remRaw):0;
-    const intl=sub?n(sub.intCooked)+n(sub.intRaw):0;
-    const cred=sub?n(sub.credCooked)+n(sub.credRaw):0;
-    const missing=dist-sold-rem-intl-cred;
-    return `<tr>
-      <td><strong>${v.name}</strong></td>
-      <td class="num">${dist}</td>
-      <td class="num">${sold}</td>
-      <td class="num">${rem}</td>
-      <td class="num">${intl}</td>
-      <td class="num">${cred}</td>
-      <td class="num" style="color:${missing>0?'#a32d2d':missing<0?'#085041':'var(--ctxt3)'}">
-        <strong>${missing}</strong>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  DASHBOARD
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function wsub(k,v){return `<div class="wsub"><span class="wsk">${k}</span><span class="wsv">${typeof v==='number'?v.toLocaleString():v}</span></div>`;}
-
-function refreshDashboard(){
-  // W1 Initial Balance
-  const bal=totalBalance();
-  document.getElementById('w-balance').textContent=bal.toLocaleString();
-  const bs=document.getElementById('w-balance-subs');
-  if(bs){
-    const prod=balBySource('production');
-    const rc=balCookedBySource('remaining')+balCookedBySource('remaining_cooked');
-    const rr=balRawBySource('remaining')+balRawBySource('remaining_raw');
-    const remAfterDist=warehouseAvail();
-    const wRemC=warehouseRemCooked();
-    const wRemR=warehouseRemRaw();
-    bs.innerHTML=wsub('From Production',prod)+wsub('Carry-over Cooked',rc)+wsub('Carry-over Raw',rr)+
-      '<div class="divider" style="margin:6px 0"></div>'+
-      wsub('Warehouse Remaining',remAfterDist)+
-      wsub('↳ Cooked',wRemC)+wsub('↳ Raw',wRemR)+
-      wsub('Distributed Out',totalDist());
-  }
-
-  // W2 Distributed
-  document.getElementById('w-dist').textContent=totalDist().toLocaleString();
-  const ds2=document.getElementById('w-dist-subs');
-  if(ds2){
-    const submitted=S.vendors.filter(v=>vendorDist(v.id)>0&&getSub(v.id)).length;
-    const pending=S.vendors.filter(v=>vendorDist(v.id)>0&&!getSub(v.id)).length;
-    ds2.innerHTML=wsub('Vendors with stock',S.vendors.filter(v=>vendorDist(v.id)>0).length)+
-      wsub('Reports submitted',submitted)+wsub('Reports pending',pending);
-  }
-
-  // W3 Sold
-  const sc=totalSoldCooked(),sr=totalSoldRaw();
-  document.getElementById('w-sold').textContent=(sc+sr).toLocaleString();
-  const ss=document.getElementById('w-sold-subs');
-  if(ss) ss.innerHTML=wsub('Sold (Cooked)',sc)+wsub('Sold (Raw)',sr);
-
-  // W4 Remaining
-  const rc2=totalRemCooked(),rr2=totalRemRaw();
-  document.getElementById('w-rem').textContent=(rc2+rr2).toLocaleString();
-  const rs=document.getElementById('w-rem-subs');
-  if(rs) rs.innerHTML=wsub('Remaining Cooked',rc2)+wsub('Remaining Raw',rr2)+wsub('Warehouse',warehouseAvail());
-
-  // W5 Vendors
-  const av=S.vendors.filter(v=>v.active).length;
-  document.getElementById('w-vcount').textContent=av;
-  const vs=document.getElementById('w-vcount-subs');
-  if(vs) vs.innerHTML=wsub('Total registered',S.vendors.length)+wsub('With distribution',S.vendors.filter(v=>vendorDist(v.id)>0).length);
-
-  // W6 Internal Use
-  const ti=totalInternal();
-  document.getElementById('w-internal').textContent=ti.toLocaleString();
-  const is=document.getElementById('w-internal-subs');
-  if(is){
-    const ic=S.submissions.reduce((s,x)=>s+n(x.intCooked),0);
-    const ir=S.submissions.reduce((s,x)=>s+n(x.intRaw),0);
-    is.innerHTML=wsub('Cooked (internal)',ic)+wsub('Raw (internal)',ir);
-  }
-
-  // Internal use table
-  renderDashInternalTable();
-  // Credit table
-  renderDashCreditTable();
-  // Chart
-  renderChart();
-  // Top vendors
-  renderTopVendors();
-}
-
-function renderDashInternalTable(){
-  const tb=document.getElementById('dash-internal-table');
-  if(!tb)return;
-  const rows=S.submissions.filter(s=>n(s.intCooked)+n(s.intRaw)>0);
-  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-state" style="padding:16px"><div class="ei">○</div>None recorded</td></tr>';return;}
-  tb.innerHTML=rows.map(s=>`<tr>
-    <td style="font-weight:600">${vname(s.vendorId)}</td>
-    <td><span class="bdg bdg-internal">Internal</span></td>
-    <td class="num">${n(s.intCooked)+n(s.intRaw)}</td>
-    <td style="font-size:12px;color:var(--ctxt3)">${s.notes||'—'}</td>
-  </tr>`).join('');
-}
-
-function renderDashCreditTable(){
-  const tb=document.getElementById('dash-credit-table');
-  if(!tb)return;
-  const rows=S.submissions.filter(s=>n(s.credCooked)+n(s.credRaw)>0);
-  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty-state" style="padding:16px"><div class="ei">○</div>None recorded</td></tr>';return;}
-  tb.innerHTML=rows.map(s=>`<tr>
-    <td style="font-weight:600">${vname(s.vendorId)}</td>
-    <td><span class="bdg bdg-credit">Credit</span></td>
-    <td class="num">${n(s.credCooked)+n(s.credRaw)}</td>
-    <td style="font-size:12px;color:var(--ctxt3)">${s.notes||'—'}</td>
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td style="font-weight:600">${r.vendor}</td>
+    <td><span class="bdg bdg-credit">${r.type}</span></td>
+    <td class="num">${r.qty}</td>
+    <td style="font-size:12px;color:var(--ctxt3)">${r.notes}</td>
   </tr>`).join('');
 }
 
